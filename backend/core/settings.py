@@ -34,16 +34,22 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'corsheaders',
     'django_filters',
+    'rolepermissions',
 ]
 
 LOCAL_APPS = [
     'apps.usuarios',
-    'apps.pacientes',
-    'apps.consultas',
-    'apps.faturamento',
-    'apps.despesas',
-    'apps.chatbot',
-    'apps.landing',
+    'apps.authentication',
+    'apps.utils',
+]
+
+DJANGO_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS + ['rest_framework.authtoken']
@@ -131,15 +137,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-    ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'apps.authentication.authentication.CookieJWTAuthentication',  # ⬅️ Lê o JWT do cookie
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  # fallback por header
     ],
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
 }
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+)
+
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
@@ -147,3 +156,5 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = DEBUG
+
+ROLEPERMISSIONS_MODULE = 'apps.usuarios.roles'
