@@ -1,9 +1,19 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Calendar, Users, FileText, BarChart3, Clock, Shield } from "lucide-react"
+import {
+  Calendar,
+  Users,
+  FileText,
+  BarChart3,
+  Clock,
+  Shield,
+  LayoutTemplate,
 
-const features = [
+  
+} from "lucide-react";
+
+const featuresSaas = [
   {
     icon: Calendar,
     title: "Agendamento",
@@ -53,7 +63,7 @@ export function LandingFeatures() {
         </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {features.map((feature, index) => (
+          {featuresSaas.map((feature, index) => (
             <motion.div
               key={feature.title}
               initial={{ opacity: 0, y: 20 }}
@@ -67,6 +77,70 @@ export function LandingFeatures() {
               <p className="text-muted-foreground">{feature.description}</p>
             </motion.div>
           ))}
+        </div>
+      </div>
+      <div>
+        {" "}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-9xl font-bold mb-4">+</h2>
+        </motion.div>
+      </div>
+      <div className="container mx-auto  grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl ">
+        <div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 2 * 0.1 }}
+            className="p-6 rounded-lg border hover:border-primary hover:shadow-lg transition"
+          >
+            <h3 className="text-xl font-semibold mb-2">
+              {" "}
+              LandingPage Profissional{" "}
+            </h3>
+            <p className="text-muted-foreground">
+              Tenha uma pagina na web profissional e sua{" "}
+            </p>
+          </motion.div>
+        </div>
+        <div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 2 * 0.1 }}
+            className="p-6 rounded-lg border hover:border-primary hover:shadow-lg transition"
+          >
+            <h3 className="text-xl font-semibold mb-2">
+              {" "}
+              LandingPage Profissional{" "}
+            </h3>
+            <p className="text-muted-foreground">
+              Tenha uma pagina na web profissional e sua{" "}
+            </p>
+          </motion.div>
+        </div>
+        <div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 2 * 0.1 }}
+            className="p-6 rounded-lg border hover:border-primary hover:shadow-lg transition"
+          >
+            <h3 className="text-xl font-semibold mb-2">
+              {" "}
+              LandingPage Profissional{" "}
+            </h3>
+            <p className="text-muted-foreground">
+              Tenha uma pagina na web profissional e sua{" "}
+            </p>
+          </motion.div>
         </div>
       </div>
     </section>

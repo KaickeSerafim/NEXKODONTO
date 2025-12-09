@@ -138,7 +138,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'apps.authentication.authentication.CookieJWTAuthentication',  # ⬅️ Lê o JWT do cookie
-        'rest_framework_simplejwt.authentication.JWTAuthentication',  # fallback por header
     ],
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
@@ -146,6 +145,7 @@ REST_FRAMEWORK = {
 }
 
 AUTHENTICATION_BACKENDS = (
+    'apps.authentication.backends.EmailBackend',  
     'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -154,7 +154,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
 ]
-
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 
 ROLEPERMISSIONS_MODULE = 'apps.usuarios.roles'
