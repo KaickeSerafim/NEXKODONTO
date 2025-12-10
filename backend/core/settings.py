@@ -44,6 +44,8 @@ LOCAL_APPS = [
     'apps.subscriptions',
     'apps.billing',
     'apps.clinic',
+    'apps.documents',
+
 
 ]
 
