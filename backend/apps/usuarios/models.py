@@ -6,6 +6,7 @@ class CustomUser(AbstractUser):
     cro = models.CharField(max_length=20, null=True, blank=True)
     
     # Dados bancários do dentista
+    pix = models.CharField(max_length=50, null=True, blank=True)
     banco = models.CharField(max_length=50, null=True, blank=True)
     agencia = models.CharField(max_length=20, null=True, blank=True)
     conta = models.CharField(max_length=20, null=True, blank=True)

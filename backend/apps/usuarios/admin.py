@@ -6,6 +6,6 @@ from .models import CustomUser
 class CustomUserAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + (
         ("Informações extras", {
-            "fields": ("foto", "crm", "banco", "agencia", "conta")
+            "fields": ("foto", "cro", "banco", "agencia", "conta")
         }),
     )

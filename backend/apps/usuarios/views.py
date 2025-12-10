@@ -1,34 +1,61 @@
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rolepermissions.checkers import get_user_roles
-from rolepermissions.permissions import available_perm_status
+from rest_framework import status
 from apps.utils.response_builder import ResponseBuilder
 
+from apps.authentication.decorators import require_permission
+
+from .serializers import CreateUserSerializer, UserMeSerializer
+
+class CreateUserView(APIView):
+    permission_classes = [AllowAny]
+
+    # 🔹 Ignora autenticação via cookie ou qualquer outro método
+    def get_authenticators(self):
+        return []
+
+    def post(self, request):
+        serializer = CreateUserSerializer(data=request.data)
+        if not serializer.is_valid():
+            return ResponseBuilder().error("Erro na validação dos dados.") \
+                .with_data(serializer.errors) \
+                .with_status(status.HTTP_400_BAD_REQUEST) \
+                .to_response()
+
+        user = serializer.save()
+
+        # Pega roles do usuário criado
+        roles = [role.get_name() for role in get_user_roles(user)]
+
+        return ResponseBuilder().created("Usuário criado com sucesso.") \
+            .with_data({
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "roles": roles
+            }).to_response()
 
 class UserMe(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
-
-        # Pega os roles do usuário
-        roles = [role.get_name() for role in get_user_roles(user)]
-
-        # Pega todas as permissões do usuário (somente as ativas)
-        permissions_dict = available_perm_status(user)
-        permissions = [perm for perm, granted in permissions_dict.items() if granted]
-
-        data = {
-            "id": user.id,
-            "username": user.username,
-            "email": user.email,
-            "roles": roles,
-            "permissions": permissions,
-        }
-
-        return (
-            ResponseBuilder()
-            .success("Usuário autenticado.")
-            .with_data(data)
+        serializer = UserMeSerializer(request.user)
+        return ResponseBuilder().success("Usuário autenticado.") \
+            .with_data(serializer.data) \
             .to_response()
-        )
+
+
+# Exemplo de view protegida por decorator
+
+
+class PacienteListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @require_permission("gerenciar_pacientes")
+    def get(self, request):
+        # Aqui você colocaria sua lógica real
+        pacientes = [{"id": 1, "nome": "João"}]
+        return ResponseBuilder().success("Pacientes carregados.") \
+            .with_data(pacientes) \
+            .to_response()
