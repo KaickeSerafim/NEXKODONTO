@@ -1,3 +1,19 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-# Create your models here.
+class CustomUser(AbstractUser):
+    foto = models.ImageField(upload_to="users/", null=True, blank=True)
+    cro = models.CharField(max_length=20, null=True, blank=True)
+    
+    # Dados bancários do dentista
+    banco = models.CharField(max_length=50, null=True, blank=True)
+    agencia = models.CharField(max_length=20, null=True, blank=True)
+    conta = models.CharField(max_length=20, null=True, blank=True)
+
+    # Dentistas associados (somente usado se user for SECRETARIA)
+    dentistas_responsaveis = models.ManyToManyField(
+        'self',
+        blank=True,
+        symmetrical=False,
+        related_name="secretarias_responsaveis",
+    )

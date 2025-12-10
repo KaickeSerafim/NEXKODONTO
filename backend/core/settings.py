@@ -41,6 +41,10 @@ LOCAL_APPS = [
     'apps.usuarios',
     'apps.authentication',
     'apps.utils',
+    'apps.subscriptions',
+    'apps.billing',
+    'apps.clinic',
+
 ]
 
 DJANGO_APPS = [
@@ -144,6 +148,8 @@ REST_FRAMEWORK = {
     ],
 }
 
+AUTH_USER_MODEL = 'usuarios.CustomUser'
+
 AUTHENTICATION_BACKENDS = (
     'apps.authentication.backends.EmailBackend',  
     'django.contrib.auth.backends.ModelBackend',
@@ -154,7 +160,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
 ]
+
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = DEBUG
+CSRF_COOKIE_HTTPONLY = True
+SESSION_COOKIE_HTTPONLY = True
 
 ROLEPERMISSIONS_MODULE = 'apps.usuarios.roles'

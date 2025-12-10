@@ -1,18 +1,26 @@
 from rolepermissions.roles import AbstractUserRole
 
-class Admin(AbstractUserRole):
+class Dentista(AbstractUserRole):
     available_permissions = {
-        'gerenciar_usuarios': True,
-        'ver_financeiro': True,
-        'aprovar_jogadores': True,
+        "ver_dashboard": True,
+        "gerenciar_pacientes": True,
+        "gerenciar_agenda": True,
+        "ver_faturamento": True,
     }
 
-class Moderador(AbstractUserRole):
+
+class Secretaria(AbstractUserRole):
     available_permissions = {
-        'aprovar_jogadores': True,
+        "gerenciar_pacientes": True,
+        "gerenciar_agenda": True,
+        "ver_dashboard": False,
+        "ver_faturamento": False,
     }
 
-class Jogador(AbstractUserRole):
+
+class AdminSistema(AbstractUserRole):
     available_permissions = {
-        'ver_dashboard': True,
+        "gerenciar_usuarios": True,
+        "gerenciar_planos": True,
+        "ver_tudo": True,
     }
