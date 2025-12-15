@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from .choices import StatusAgendamento
 
 USER = settings.AUTH_USER_MODEL
 
@@ -16,18 +17,14 @@ class Paciente(models.Model):
 
 
 class Agendamento(models.Model):
-    STATUS_CHOICES = (
-        ('agendada', 'Agendada'),
-        ('confirmada', 'Confirmada'),
-        ('cancelada', 'Cancelada'),
-    )
+
 
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='consultas')
     dentista = models.ForeignKey(USER, on_delete=models.CASCADE, related_name='consultas')
     criado_por = models.ForeignKey(USER, on_delete=models.SET_NULL, null=True, blank=True, related_name='consultas_criadas')
     data_hora = models.DateTimeField()
     motivo = models.CharField(max_length=255, null=True, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='agendada')
+    status = models.CharField(max_length=20, choices=StatusAgendamento.choices, default='agendada')
     observacoes = models.TextField(null=True, blank=True)
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)

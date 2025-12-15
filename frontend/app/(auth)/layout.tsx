@@ -1,5 +1,6 @@
 import { checkAuth } from "@/lib/api/get-server/checkAuth";
 import { redirect } from "next/navigation";
+import AuthWrapper from "./auth-wrapper";
 
 export default async function AuthLayout({
   children,
@@ -12,9 +13,5 @@ export default async function AuthLayout({
     redirect("/dashboard");
   }
 
-  return (
-    <>
-      {children}
-    </>
-  );
+  return <AuthWrapper>{children}</AuthWrapper>;
 }
