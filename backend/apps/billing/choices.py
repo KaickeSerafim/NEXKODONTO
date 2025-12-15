@@ -8,10 +8,6 @@ class MetodoPagamento(models.TextChoices):
     BOLETO = 'boleto', 'Boleto',
     OUTRO = 'outro', 'Outro',
 
-class JeitoPagamento(models.TextChoices):
-    AVULSO = 'avulso', 'Avulso',
-    PARCELADO = 'parcelado', 'Parcelado',
-    OUTRO = 'outro', 'Outro',
 
 class StatusPagamento(models.TextChoices):
     PAGO = 'pago', 'Pago',

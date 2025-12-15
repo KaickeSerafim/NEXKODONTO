@@ -65,10 +65,28 @@ export default function ProximosAtendimentos({ agendamentos }: { agendamentos?: 
                 >
                   {statusConfig.label}
                 </span>
+                <span className=" grid text-xs text-gray-500">
+                  <span className="flex gap-1">
+                    Criado por:{"  "}
+                    <p className="font-bold">
+                      {atendimento.criado_por_detail
+                        ? atendimento.criado_por_detail.nome_completo
+                        : "-"}
+                    </p>
+                  </span>
+                  <span>
+                    em:{"  "}
+                    {atendimento.criado_em
+                      ? formatarDataHora(atendimento.criado_em)
+                      : "-"}
+                  </span>
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-2 min-w-[200px]">
-              <h3 className="text-sm font-semibold whitespace-nowrap">Pagamento:</h3>
+              <h3 className="text-sm font-semibold whitespace-nowrap">
+                Pagamento:
+              </h3>
               <div className="flex flex-col gap-1">
                 <span
                   className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full border ${statusPagamentoConfig.className}`}
