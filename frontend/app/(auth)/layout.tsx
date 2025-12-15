@@ -1,26 +1,20 @@
-import { cookies } from "next/headers";
+import { checkAuth } from "@/lib/api/get-server/checkAuth";
 import { redirect } from "next/navigation";
 
-export default async function LayoutuAuth({ children }: { children: React.ReactNode }) {
-    const cookiesList = await cookies()
-    const hasToken = cookiesList.has("access")
-    
-    if (!hasToken)
-    {
-        return redirect("/")
-    }
+export default async function AuthLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const isAuthenticated = await checkAuth();
 
-    const requestUser = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/me/`, {
-        method: "GET",
-        headers: {
-            cookie: cookiesList.toString(),
-        },
-        cache: "no-store",
-    })
+  if (isAuthenticated) {
+    redirect("/dashboard");
+  }
 
-    return (
-        <>
-            {children}
-        </>
-    )
+  return (
+    <>
+      {children}
+    </>
+  );
 }

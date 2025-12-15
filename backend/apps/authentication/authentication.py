@@ -2,7 +2,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 class CookieJWTAuthentication(JWTAuthentication):
     def authenticate(self, request):
-        # pega o token do cookie
+        
         access_token = request.COOKIES.get("access")
 
         if not access_token:

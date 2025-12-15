@@ -11,7 +11,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = [
-            "id", "username", "email", "password", "cro", "foto",
+            "id","first_name","last_name", "username", "email", "password", "cro", "foto",
             "banco", "agencia", "conta", "pix", "tipo_usuario"
         ]
         extra_kwargs = {
@@ -45,7 +45,7 @@ class UserMeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ["id", "username", "email", "roles", "permissions"]
+        fields = ["id","foto","first_name","last_name", "username", "email", "roles", "permissions"]
 
     def get_roles(self, user):
         return [role.get_name() for role in get_user_roles(user)]
@@ -53,3 +53,11 @@ class UserMeSerializer(serializers.ModelSerializer):
     def get_permissions(self, user):
         perms = available_perm_status(user)
         return [perm for perm, granted in perms.items() if granted]
+
+class UpdateUserMeSerializer(serializers.ModelSerializer):
+    
+
+    class Meta:
+        model = CustomUser
+        fields = ["id","foto","first_name","last_name", "username", "email","cro", "pix", "banco", "agencia", "conta" ]
+

@@ -1,21 +1,30 @@
-import { LoginFormData } from "@/app/schemas/login";
-import { fetcherPublic } from "../api";
+import { api } from "../axios"
+import {
+  LoginFormData,
+  loginResponseSchema,
+  LoginResponse,
+} from "@/app/schemas/login/login"
 
-export async function Login( data  : LoginFormData ) {
-    
+export async function loginUser(data: LoginFormData): Promise<LoginResponse> {
+
   try {
-   
-    const urlLogin = "login/"; // seu endpoint de login relativo
-    const res = await fetcherPublic(urlLogin, {
-      method: "POST",
-      body: JSON.stringify(data),
-      credentials: "include", // envia cookies para backend
-    });
+    const response = await api.post("login/", data)
+    
 
-      return res; 
-      
-  } catch (err: any) {
-    // Lança o erro para ser tratado no onSubmit
-    throw new Error(err.message || "Erro ao fazer login");
+    
+    // Valida resposta com Zod
+    const validatedResponse = loginResponseSchema.parse(response.data)
+
+    if (validatedResponse.status === "error") {
+      throw new Error(validatedResponse.message)
+    }
+
+  
+    return validatedResponse
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message)
+    }
+    throw new Error(error.message || "Erro ao fazer login")
   }
 }

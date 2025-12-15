@@ -6,7 +6,7 @@ from apps.utils.response_builder import ResponseBuilder
 
 from apps.authentication.decorators import require_permission
 
-from .serializers import CreateUserSerializer, UserMeSerializer
+from .serializers import CreateUserSerializer, UserMeSerializer, UpdateUserMeSerializer
 
 class CreateUserView(APIView):
     permission_classes = [AllowAny]
@@ -40,6 +40,7 @@ class UserMe(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        print(request)
         serializer = UserMeSerializer(request.user)
         return ResponseBuilder().success("Usuário autenticado.") \
             .with_data(serializer.data) \
@@ -59,3 +60,21 @@ class PacienteListView(APIView):
         return ResponseBuilder().success("Pacientes carregados.") \
             .with_data(pacientes) \
             .to_response()
+
+
+class UpdateUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        user = request.user
+        serializer = UpdateUserMeSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return ResponseBuilder().success("Usuário atualizado com sucesso.") \
+                .with_data(serializer.data) \
+                .to_response()
+        else:
+            return ResponseBuilder().error("Erro na atualização do usuário.") \
+                .with_data(serializer.errors) \
+                .with_status(status.HTTP_400_BAD_REQUEST) \
+                .to_response()

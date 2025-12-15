@@ -10,9 +10,10 @@ class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+
+        print(request.path)
         email = request.data.get("email")
         password = request.data.get("password")
-
         user = authenticate(email=email, password=password)
         if user is None:
             return (
@@ -30,7 +31,7 @@ class LoginView(APIView):
             .to_response()
         )
 
-        # Cookies HttpOnly
+     
         response.set_cookie(
             key="refresh",
             value=str(refresh),
@@ -38,6 +39,7 @@ class LoginView(APIView):
             secure=False,
             samesite="Lax",
             path="/",
+            max_age=60 * 60 * 24 * 7,
         )
         response.set_cookie(
             key="access",
@@ -46,16 +48,18 @@ class LoginView(APIView):
             secure=False,
             samesite="Lax",
             path="/",
+            max_age=60 * 30,
         )
 
         return response
+
     
 
 class RefreshView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        refresh_token = request.COOKIES.get("refresh")  # ⬅️ pegar o refresh token
+        refresh_token = request.COOKIES.get("refresh")
         if not refresh_token:
             return ResponseBuilder().error("Refresh token não encontrado.").with_status(400).to_response()
 
@@ -71,20 +75,31 @@ class RefreshView(APIView):
                 secure=False,
                 samesite="Lax",
                 path="/",
+                max_age=60 * 30,
             )
             return response
+        
         except TokenError:
             return ResponseBuilder().error("Refresh token inválido ou expirado.").with_status(401).to_response()
 
 
 class LogoutView(APIView):
     def post(self, request):
-        # Para logout via cookie, apenas limpar o cookie do JWT
+
+        user = request.user
+        if not user.is_authenticated:
+            return (
+                ResponseBuilder()
+                .error("Nao existe usuario autenticado.")
+                .with_status(401)
+                .to_response()
+            )
         response = (
             ResponseBuilder()
             .success("Logout realizado com sucesso.")
             .to_response()
         )
-        response.delete_cookie("access")
-        response.delete_cookie("refresh")  # ⬅️ nome do cookie que você usa
+
+        response.delete_cookie("access", path="/")
+        response.delete_cookie("refresh", path="/")
         return response

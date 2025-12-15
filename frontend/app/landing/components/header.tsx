@@ -27,7 +27,7 @@ export function LandingHeader() {
         </nav>
         <div className="flex gap-3">
           <Link 
-            href="/login" 
+            href="/login/" 
             className="px-4 py-2 hover:bg-gray-100 rounded-md transition"
           >
             Entrar
