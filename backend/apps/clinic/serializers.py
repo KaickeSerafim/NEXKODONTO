@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Paciente, Agendamento
 from apps.usuarios.models import CustomUser
+from apps.billing.models import Pagamento
 
 class PacienteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,7 +19,13 @@ class DentistaSerializer(serializers.ModelSerializer):
     
     def get_nome_completo(self, obj):
         return obj.get_full_name()
-    
+
+class PagamentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pagamento
+        fields = ['id', 'agendamento', 'status', 'pago_em']
+        read_only_fields = ['id']
+
 class CriadoPorSerializer(serializers.ModelSerializer):
     nome_completo = serializers.SerializerMethodField()
     
@@ -34,12 +41,13 @@ class AgendamentoSerializer(serializers.ModelSerializer):
     paciente_detail = PacienteSerializer(source='paciente', read_only=True)
     dentista_detail = DentistaSerializer(source='dentista', read_only=True)
     criado_por_detail = CriadoPorSerializer(source='criado_por', read_only=True)
+    pagamento = PagamentoSerializer(source='pagamentos', many=True, read_only=True)
     paciente_id = serializers.IntegerField(write_only=True)
     
     class Meta:
         model = Agendamento
         fields = ['id', 'paciente_id', 'paciente_detail', 'dentista_detail', 'criado_por_detail',
-                  'data_hora', 'motivo', 'status', 'observacoes', 'criado_em', 'atualizado_em']
+                  'data_hora', 'motivo', 'status', 'observacoes', 'criado_em', 'atualizado_em', 'pagamento']
         read_only_fields = ['id', 'criado_em', 'atualizado_em']
     
     def create(self, validated_data):
