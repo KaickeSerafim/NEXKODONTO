@@ -19,10 +19,15 @@ interface EditarAgendamentoProps {
 
 export function EditarAgendamento({ open, onOpenChange, agendamento }: EditarAgendamentoProps) {
   const { mutate, isPending } = useUpdateAgendamento();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    data_hora: string;
+    motivo: string;
+    status: string;
+    observacoes: string;
+  }>({
     data_hora: agendamento.data_hora.slice(0, 16),
     motivo: agendamento.motivo || "",
-    status: agendamento.status,
+    status: (agendamento.status ) || "",
     observacoes: agendamento.observacoes || "",
   });
 
@@ -75,7 +80,7 @@ export function EditarAgendamento({ open, onOpenChange, agendamento }: EditarAge
 
           <div className="space-y-2">
             <Label>Status</Label>
-            <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
+            <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value  })}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

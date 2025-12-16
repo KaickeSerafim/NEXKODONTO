@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
-import { EditarAgendamento } from "./actions/EditarAgendamento";
+import { EditarAgendamento } from "./actions/editar-agendamento";
+import { ArquivosDialog } from "./actions/arquivos";
 import { Agendamento } from "@/app/schemas/agendamento/agendamento";
 
 interface ActionsProxAtendimentoProps {
@@ -13,6 +14,7 @@ interface ActionsProxAtendimentoProps {
 
 export default function ActionsProxAtendimento({ agendamento }: ActionsProxAtendimentoProps) {
   const [editarOpen, setEditarOpen] = useState(false);
+  const [arquivoOpen, setArquivoOpen] = useState(false);
   return (
     <>
       <DropdownMenu>
@@ -33,18 +35,28 @@ export default function ActionsProxAtendimento({ agendamento }: ActionsProxAtend
 
           <DropdownMenuSeparator />
           <DropdownMenuItem>Ficha do paciente</DropdownMenuItem>
-          <DropdownMenuItem>Arquivos</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setEditarOpen(true)}>Editar</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setArquivoOpen(true)}>
+            Arquivos
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setEditarOpen(true)}>
+            Editar
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem> Ver informações de pagamento</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem> Cancelar</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <EditarAgendamento
+        open={editarOpen}
+        onOpenChange={setEditarOpen}
+        agendamento={agendamento}
+      />
       
-      <EditarAgendamento 
-        open={editarOpen} 
-        onOpenChange={setEditarOpen} 
+      <ArquivosDialog
+        open={arquivoOpen}
+        onOpenChange={setArquivoOpen}
         agendamento={agendamento}
       />
     </>

@@ -11,35 +11,7 @@ const stats = [
   { icon: TrendingUp, label: "Receita Mensal", value: "R$ 45.2k", change: "+18%" },
 ]
 
-const proximosAtendimentos = [
-  {
-    id: 1,
-    nome_paciente: "Maria Silva",
-    status_atendimento: "confirmado",
-    hora_atendimento: "09:00",
-    data_atendimento: "2024-06-15",
-    tipo_atendimento: "Limpeza",
-    observacao_atendimento: "Paciente alérgica a amoxicilina",
-  },
-  {
-    id: 2,
-    nome_paciente: "João Santos",
-    status_atendimento: "confirmado",
-    hora_atendimento: "10:30",
-    data_atendimento: "2024-06-15",
-    tipo_atendimento: "Consulta",
-    observacao_atendimento: "Paciente alérgica a amoxicilina",
-  },
-  {
-    id: 3,
-    nome_paciente: "Ana Costa",
-    status_atendimento: "Pendente",
-    hora_atendimento: "14:00",
-    data_atendimento: "2024-06-15",
-    tipo_atendimento: "Tratamento",
-    observacao_atendimento: "Paciente alérgica a amoxicilina",
-  },
-];
+
 
 export default function DashboardPage() {
   return (
@@ -84,7 +56,7 @@ export default function DashboardPage() {
           Próximos Atendimentos
         </h2>
         <div className="space-y-4">
-         <ProximosAtendimentos atendimentos={proximosAtendimentos} />
+         <ProximosAtendimentos  />
         </div>
       </motion.div>
     </div>
