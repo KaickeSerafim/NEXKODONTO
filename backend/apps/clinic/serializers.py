@@ -37,18 +37,29 @@ class CriadoPorSerializer(serializers.ModelSerializer):
     def get_nome_completo(self, obj):
         return obj.get_full_name()
 
+class AtualizadoPorSerializer(serializers.ModelSerializer):
+    nome_completo = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = CustomUser
+        fields = ['nome_completo']
+    
+    def get_nome_completo(self, obj):
+        return obj.get_full_name()
+
 class AgendamentoSerializer(serializers.ModelSerializer):
     paciente_detail = PacienteSerializer(source='paciente', read_only=True)
     dentista_detail = DentistaSerializer(source='dentista', read_only=True)
     criado_por_detail = CriadoPorSerializer(source='criado_por', read_only=True)
+    updated_by_detail = AtualizadoPorSerializer(source='updated_by', read_only=True)
     pagamento = PagamentoSerializer(source='pagamentos', many=True, read_only=True)
     paciente_id = serializers.IntegerField(write_only=True)
     
     class Meta:
         model = Agendamento
-        fields = ['id', 'paciente_id', 'paciente_detail', 'dentista_detail', 'criado_por_detail',
+        fields = ['id', 'paciente_id', 'paciente_detail', 'dentista_detail', 'criado_por_detail', 'updated_by_detail',
                   'data_hora', 'motivo', 'status', 'observacoes', 'criado_em', 'atualizado_em', 'pagamento']
-        read_only_fields = ['id', 'criado_em', 'atualizado_em']
+        read_only_fields = ['id', 'criado_em', 'atualizado_em', 'updated_by']
     
     def create(self, validated_data):
         paciente_id = validated_data.pop('paciente_id')

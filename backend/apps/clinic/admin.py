@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Paciente, Agendamento
+from .signals import set_current_user
 
 @admin.register(Paciente)
 class PacienteAdmin(admin.ModelAdmin):
@@ -9,7 +10,17 @@ class PacienteAdmin(admin.ModelAdmin):
 
 @admin.register(Agendamento)
 class AgendamentoAdmin(admin.ModelAdmin):
-    list_display = ('paciente', 'dentista', 'data_hora', 'status', 'motivo')
+    list_display = ('paciente', 'dentista', 'data_hora', 'status', 'motivo', 'updated_by')
     list_filter = ('status', 'dentista', 'data_hora')
     search_fields = ('paciente__nome', 'motivo')
     date_hierarchy = 'data_hora'
+    readonly_fields = ('criado_por', 'updated_by', 'criado_em', 'atualizado_em')
+    
+    def save_model(self, request, obj, form, change):
+        set_current_user(request.user)
+        super().save_model(request, obj, form, change)
+    readonly_fields = ('criado_por', 'updated_by', 'criado_em', 'atualizado_em')
+    
+    def save_model(self, request, obj, form, change):
+        set_current_user(request.user)
+        super().save_model(request, obj, form, change)

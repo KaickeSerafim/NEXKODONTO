@@ -6,7 +6,7 @@ export default function ObsProxAtendimento({ observacao }: { observacao: string 
       <PopoverTrigger className="bg-slate-800 text-white border text-sm rounded-lg  p-3">
         Obs. do atendimento
       </PopoverTrigger>
-      <PopoverContent>{observacao}</PopoverContent>
+      <PopoverContent>{observacao ? observacao : "Sem observações"}</PopoverContent>
     </Popover>
   );
 }

@@ -32,12 +32,17 @@ const pagamentoSchema = z.object({
   pago_em: z.string().nullable().optional(),
 });
 
+const alteradoPorDetailSchema = z.object({
+  nome_completo: z.string(),
+}).nullable();
+
 export const agendamentoSchema = z.object({
   id: z.number(),
   paciente_id: z.number().optional(),
   paciente_detail: pacienteDetailSchema,
   dentista_detail: dentistaDetailSchema,
   criado_por_detail: criadoPorDetailSchema.nullable(),
+  updated_by_detail: alteradoPorDetailSchema,
   pagamento: z.array(pagamentoSchema).optional().default([]),
   data_hora: z.string(),
   motivo: z.string().nullable(),

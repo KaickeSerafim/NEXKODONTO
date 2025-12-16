@@ -1,41 +1,85 @@
 "use client";
 
-
 import ObsProxAtendimento from "./popover-obs-prox-atendimento";
 import { motion } from "framer-motion";
-import { Calendar, User, Check, AlertCircle, XCircle, Info } from "lucide-react";
+import {
+  Calendar,
+  User,
+  Check,
+  AlertCircle,
+  XCircle,
+  Info,
+} from "lucide-react";
 import ActionsProxAtendimento from "./action-prox-atendimento";
-import { Agendamento, AgendamentoResponse } from "@/app/schemas/agendamento/agendamento";
+import {
+  Agendamento,
+  AgendamentoResponse,
+} from "@/app/schemas/agendamento/agendamento";
 import { useListAgendamentos } from "@/hooks/agendamento/useListAgendamentos";
 import { getStatusConfig } from "@/app/functions/utils/get-status-config";
 import { formatarDataHora } from "@/app/functions/utils/formatar-data-hora";
 import { getStatusPagamentoConfig } from "@/app/functions/utils/get-status-pagamento-config";
 import Loading from "@/components/loading/Loading";
+import { FilterProxAtendimento } from "./filter-prox-atendimento";
+import { useState } from "react";
 
-
-export default function ProximosAtendimentos({ agendamentos }: { agendamentos?: AgendamentoResponse }) {
-  const { data, error, isLoading } = useListAgendamentos();
-
+export default function ProximosAtendimentos({
+  agendamentos,
+}: {
+  agendamentos?: AgendamentoResponse;
+}) {
+  const [filters, setFilters] = useState<{
+    motivo?: string;
+    pagamento?: string;
+    periodo?: string;
+    status?: string;
+  }>({});
+  const { data, error, isLoading } = useListAgendamentos({
+    ...filters,
+    futuros: true,
+  });
 
   const agendamentosList = data?.data || agendamentos?.data || [];
-  
-  
-
 
   if (isLoading) {
     return <Loading />;
   }
 
   if (!agendamentosList.length) {
-    return <div className="text-center text-gray-500 py-8">Nenhum agendamento encontrado</div>;
+    return (
+      <div className="w-full space-y-4">
+        <FilterProxAtendimento
+          onFilterChange={(newFilters) =>
+            setFilters({ ...filters, ...newFilters })
+          }
+        />
+        <div className="text-center text-gray-500 py-8">
+          Nenhum agendamento encontrado para hoje
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="w-full space-y-4">
+      <FilterProxAtendimento
+        onFilterChange={(newFilters) =>
+          setFilters({ ...filters, ...newFilters })
+        }
+      />
       {agendamentosList.map((atendimento: Agendamento, index: number) => {
         const statusConfig = getStatusConfig(atendimento.status);
-        const statusPagamentoConfig = getStatusPagamentoConfig(atendimento.pagamento[0]?.status || "pendente");
-        const IconPagamento = statusPagamentoConfig.icon === "Check" ? Check : statusPagamentoConfig.icon === "AlertCircle" ? AlertCircle : statusPagamentoConfig.icon === "XCircle" ? XCircle : Info;
+        const statusPagamentoConfig = getStatusPagamentoConfig(
+          atendimento.pagamento[0]?.status || "pendente"
+        );
+        const IconPagamento =
+          statusPagamentoConfig.icon === "Check"
+            ? Check
+            : statusPagamentoConfig.icon === "AlertCircle"
+            ? AlertCircle
+            : statusPagamentoConfig.icon === "XCircle"
+            ? XCircle
+            : Info;
         return (
           <motion.div
             key={atendimento.id}
@@ -52,7 +96,10 @@ export default function ProximosAtendimentos({ agendamentos }: { agendamentos?: 
                   {atendimento.paciente_detail.nome}
                 </h3>
                 <h4 className="text-sm font-semibold  text-gray-500 border rounded-lg pr-4 pl-2 bg-cyan-300">
-                  - {atendimento.motivo ? "" + atendimento.motivo : "Consulta"}
+                  -{" "}
+                  {atendimento.motivo
+                    ? "" + atendimento.motivo
+                    : "Nao informado"}
                 </h4>
               </div>
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 ">
@@ -74,10 +121,31 @@ export default function ProximosAtendimentos({ agendamentos }: { agendamentos?: 
                         : "-"}
                     </p>
                   </span>
+
                   <span>
                     em:{"  "}
                     {atendimento.criado_em
                       ? formatarDataHora(atendimento.criado_em)
+                      : "-"}
+                  </span>
+                </span>
+                <span>
+                  | <br />|
+                </span>
+                <span className=" grid text-xs text-gray-500">
+                  <span className="flex gap-1">
+                    Ultima alteracao:{"  "}
+                    <p className="font-bold">
+                      {atendimento.updated_by_detail?.nome_completo
+                        ? atendimento.updated_by_detail.nome_completo
+                        : "-"}
+                    </p>
+                  </span>
+
+                  <span>
+                    em:{"  "}
+                    {atendimento.atualizado_em
+                      ? formatarDataHora(atendimento.atualizado_em)
                       : "-"}
                   </span>
                 </span>
@@ -102,7 +170,7 @@ export default function ProximosAtendimentos({ agendamentos }: { agendamentos?: 
               </div>
             </div>
             <ObsProxAtendimento observacao={atendimento.observacoes || ""} />
-            <ActionsProxAtendimento />
+            <ActionsProxAtendimento agendamento={atendimento} />
           </motion.div>
         );
       })}

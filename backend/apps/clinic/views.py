@@ -4,6 +4,9 @@ from rest_framework import status
 from .models import Paciente, Agendamento
 from .serializers import PacienteSerializer, AgendamentoSerializer
 from apps.utils.response_builder import ResponseBuilder
+from .filters import AgendamentoFilter
+from django.utils import timezone
+from .signals import set_current_user
 
 class PacienteListCreateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -55,7 +58,8 @@ class AgendamentoListCreateView(APIView):
     
     def get(self, request):
         agendamentos = Agendamento.objects.filter(dentista=request.user)
-        serializer = AgendamentoSerializer(agendamentos, many=True)
+        filterset = AgendamentoFilter(request.GET, queryset=agendamentos)
+        serializer = AgendamentoSerializer(filterset.qs, many=True)
         return ResponseBuilder().success("Agendamentos listados com sucesso").with_data(serializer.data).to_response()
     
     def post(self, request):
@@ -79,6 +83,7 @@ class AgendamentoDetailView(APIView):
     def put(self, request, pk):
         try:
             agendamento = Agendamento.objects.get(pk=pk, dentista=request.user)
+            set_current_user(request.user)
             serializer = AgendamentoSerializer(agendamento, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()

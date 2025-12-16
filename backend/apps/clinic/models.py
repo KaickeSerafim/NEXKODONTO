@@ -26,6 +26,7 @@ class Agendamento(models.Model):
     motivo = models.CharField(max_length=255, null=True, blank=True)
     status = models.CharField(max_length=20, choices=StatusAgendamento.choices, default='agendada')
     observacoes = models.TextField(null=True, blank=True)
+    updated_by = models.ForeignKey(USER, on_delete=models.SET_NULL, null=True, blank=True, related_name='consultas_atualizadas')
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 

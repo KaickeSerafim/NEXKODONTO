@@ -1,12 +1,29 @@
 import {  AgendamentoResponse, agendamentoResponseSchema } from "@/app/schemas/agendamento/agendamento";
 import { api } from "../axios";
 
+interface ListAgendamentosParams {
+  motivo?: string;
+  pagamento?: string;
+  periodo?: string;
+  status?: string;
+  futuros?: boolean;
+}
 
-export async function ListAgendamentos(): Promise<AgendamentoResponse> {
+export async function ListAgendamentos(params?: ListAgendamentosParams): Promise<AgendamentoResponse> {
   try {
-    const response = await api.get("agendamentos/");
+    const queryParams = new URLSearchParams();
+    if (params?.motivo && params.motivo !== "todos") queryParams.append("motivo", params.motivo);
+    if (params?.pagamento && params.pagamento !== "todos") queryParams.append("pagamento", params.pagamento);
+    if (params?.periodo && params.periodo !== "todos") queryParams.append("periodo", params.periodo);
+    if (params?.status && params.status !== "todos") queryParams.append("status", params.status);
+    if (params?.futuros) queryParams.append("futuros", "true");
+    
+    const url = `agendamentos/${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
 
-    // Valida resposta com Zod
+    const response = await api.get(url);
+    console.log("Response data:", response.data); // Debugging line
+
+  
     const validatedResponse = agendamentoResponseSchema.parse(response.data);
 
     if (validatedResponse.status === "error") {
