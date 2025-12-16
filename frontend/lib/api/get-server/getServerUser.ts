@@ -21,12 +21,13 @@ export async function getServerUser(): Promise<UserMeResponse> {
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 
-  const response = await fetch(`${API_BASE_URL}/user/me/`, {
+  const response = await fetch(`${API_BASE_URL}/user/me/?t=${Date.now()}`, {
     headers: {
       'Cookie': cookieHeader,
       'Content-Type': 'application/json',
     },
     cache: "no-store",
+    next: { revalidate: 0 },
   });
 
   if (response.status === 401) {

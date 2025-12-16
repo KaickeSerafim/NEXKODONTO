@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/v1/', include('apps.authentication.urls')),
     path('api/v1/', include('apps.usuarios.urls')),
     path('api/v1/', include('apps.clinic.urls')),
+    path('api/v1/', include('apps.documents.urls')),
 ]
 
 if settings.DEBUG:

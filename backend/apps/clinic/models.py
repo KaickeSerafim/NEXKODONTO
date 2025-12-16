@@ -3,6 +3,7 @@ from django.db import models
 from django.utils import timezone
 from .choices import StatusAgendamento
 
+
 USER = settings.AUTH_USER_MODEL
 
 class Paciente(models.Model):

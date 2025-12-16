@@ -7,19 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-
 import { LoginFormData, loginSchema } from "@/app/schemas/login/login";
-import { useState } from "react";
-
-import { loginUser } from "@/lib/api/login/login";
-import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
-
+import { useLogin } from "@/hooks/login-logout/useLogin";
 
 export default function LoginForm() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { mutate: login, isPending, error } = useLogin();
 
   const {
     register,
@@ -29,18 +22,8 @@ export default function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: LoginFormData) => {
-    setError(null);
-    setIsLoading(true);
-
-    try {
-      await loginUser(data);
-      router.replace("/dashboard"); 
-    } catch (err: any) {
-      setError(err.message ?? "Erro ao entrar.");
-    } finally {
-      setIsLoading(false);
-    }
+  const onSubmit = (data: LoginFormData) => {
+    login(data);
   };
 
 
@@ -103,17 +86,16 @@ export default function LoginForm() {
 
             <Button
               type="submit"
-              disabled={isLoading}
+              disabled={isPending}
               className="w-full h-11 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium shadow-lg disabled:opacity-50"
             >
-              {isLoading ? "Entrando..." : "Entrar"}
+              {isPending ? "Entrando..." : "Entrar"}
             </Button>
 
             {error && (
               <p className="text-red-500 text-sm text-center ">
-                {" "}
                 <X className="border border-red-500 rounded-lg inline w-4 h-4 mr-1" />
-                {error}
+                {error.message}
               </p>
             )}
           </form>

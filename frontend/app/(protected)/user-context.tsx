@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { UserMeResponse } from "@/app/schemas/user/userMe";
 
 const UserContext = createContext<UserMeResponse | null>(null);
@@ -12,7 +12,17 @@ export function UserProvider({
   children: React.ReactNode;
   user: UserMeResponse;
 }) {
-  return <UserContext.Provider value={user}>{children}</UserContext.Provider>;
+  const [currentUser, setCurrentUser] = useState(user);
+
+  useEffect(() => {
+    setCurrentUser(user);
+  }, [user]);
+
+  return (
+    <UserContext.Provider value={currentUser} key={user.data ? user.data.id : "guest"}>
+      {children}
+    </UserContext.Provider>
+  );
 }
 
 export function useUser() {
