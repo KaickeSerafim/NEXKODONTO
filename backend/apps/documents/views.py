@@ -1,10 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+from django.http import FileResponse, Http404
 from .models import PacienteDocumento
 from .serializers import PacienteDocumentoSerializer
 from .filters import PacienteDocumentoFilter
 from apps.utils.response_builder import ResponseBuilder
+import os
 
 class PacienteDocumentoListCreateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -51,3 +53,18 @@ class PacienteDocumentoDetailView(APIView):
             return ResponseBuilder().success("Documento deletado com sucesso").with_status(status.HTTP_204_NO_CONTENT).to_response()
         except PacienteDocumento.DoesNotExist:
             return ResponseBuilder().error("Documento não encontrado").with_status(status.HTTP_404_NOT_FOUND).to_response()
+
+class DownloadDocumentoView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, pk):
+        try:
+            documento = PacienteDocumento.objects.get(pk=pk, paciente__dentista=request.user)
+            if not documento.arquivo:
+                raise Http404("Arquivo não encontrado")
+            
+            response = FileResponse(documento.arquivo.open('rb'))
+            response['Content-Disposition'] = f'attachment; filename="{os.path.basename(documento.arquivo.name)}"'
+            return response
+        except PacienteDocumento.DoesNotExist:
+            raise Http404("Documento não encontrado")

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
-import { EditarAgendamento } from "./actions/editar-agendamento";
+import { EditarAgendamento } from "./actions/edit";
 import { ArquivosDialog } from "./actions/arquivos";
 import { Agendamento } from "@/app/schemas/agendamento/agendamento";
 

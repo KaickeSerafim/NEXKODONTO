@@ -16,6 +16,6 @@ class PacienteDocumentoSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = PacienteDocumento
-        fields = ['id', 'paciente', 'paciente_detail', 'agendamento', 'enviado_por_detail', 
+        fields = ['id', 'nome', 'paciente', 'paciente_detail', 'agendamento', 'enviado_por_detail', 
                   'arquivo', 'tipo', 'descricao', 'criado_em']
         read_only_fields = ['id', 'criado_em', 'enviado_por']

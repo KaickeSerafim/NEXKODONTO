@@ -6,9 +6,11 @@ from .choices import TipoDocumento
 USER = settings.AUTH_USER_MODEL
 
 class PacienteDocumento(models.Model):
+    nome = models.CharField(max_length=255)
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name="documentos")
     agendamento = models.ForeignKey(Agendamento, on_delete=models.SET_NULL, null=True, blank=True, related_name="documentos")
     enviado_por = models.ForeignKey(USER, on_delete=models.SET_NULL, null=True)
+    updated_by = models.ForeignKey(USER, on_delete=models.SET_NULL, null=True, related_name='+')
     arquivo = models.FileField(upload_to="pacientes/documentos/")
     tipo = models.CharField(max_length=50, choices=TipoDocumento.choices)
     descricao = models.TextField(blank=True, null=True)
