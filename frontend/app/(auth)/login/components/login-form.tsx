@@ -10,6 +10,8 @@ import Image from "next/image";
 import { LoginFormData, loginSchema } from "@/app/schemas/login/login";
 import { X } from "lucide-react";
 import { useLogin } from "@/hooks/login-logout/useLogin";
+import LoadingLogoNexk from "@/components/loading/loading-logo-nexk";
+import { AnimatePresence } from "framer-motion";
 
 export default function LoginForm() {
   const { mutate: login, isPending, error } = useLogin();
@@ -21,6 +23,16 @@ export default function LoginForm() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
+
+  if (isPending) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
+        <AnimatePresence>
+          <LoadingLogoNexk />
+        </AnimatePresence>
+      </div>
+    )
+  }
 
   const onSubmit = (data: LoginFormData) => {
     login(data);

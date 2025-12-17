@@ -10,7 +10,7 @@ import {
   XCircle,
   Info,
 } from "lucide-react";
-import ActionsProxAtendimento from "./action-prox-atendimento";
+
 import {
   Agendamento,
   AgendamentoResponse,
@@ -22,6 +22,7 @@ import { getStatusPagamentoConfig } from "@/app/functions/utils/get-status-pagam
 import Loading from "@/components/loading/Loading";
 import { FilterProxAtendimento } from "./filter-prox-atendimento";
 import { useState } from "react";
+import ActionsProxAtendimento from "../../../_components/_actions";
 
 export default function ProximosAtendimentos({
   agendamentos,

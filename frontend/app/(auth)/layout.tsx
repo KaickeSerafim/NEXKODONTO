@@ -10,6 +10,7 @@ export default async function AuthLayout({
   const isAuthenticated = await checkAuth();
 
   if (isAuthenticated) {
+    
     redirect("/dashboard");
   }
 

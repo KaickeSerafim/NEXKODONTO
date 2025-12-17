@@ -1,18 +1,28 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
-import { EditarAgendamento } from "./actions/edit";
-import { ArquivosDialog } from "./actions/arquivos";
+
+import { ArquivosDialog } from "./arquivos";
 import { Agendamento } from "@/app/schemas/agendamento/agendamento";
+import { EditarAgendamento } from "../_agendamento/edit-agendamento";
 
 interface ActionsProxAtendimentoProps {
   agendamento: Agendamento;
 }
 
-export default function ActionsProxAtendimento({ agendamento }: ActionsProxAtendimentoProps) {
+export default function ActionsProxAtendimento({
+  agendamento,
+}: ActionsProxAtendimentoProps) {
   const [editarOpen, setEditarOpen] = useState(false);
   const [arquivoOpen, setArquivoOpen] = useState(false);
   return (
@@ -29,7 +39,9 @@ export default function ActionsProxAtendimento({ agendamento }: ActionsProxAtend
           align="end"
           className="w-40 bg-slate-800  text-white"
         >
-          <DropdownMenuLabel>Ações</DropdownMenuLabel>
+          <DropdownMenuLabel className="text-center bg-slate-500">
+            Ações
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem>Contatar </DropdownMenuItem>
 
@@ -53,7 +65,7 @@ export default function ActionsProxAtendimento({ agendamento }: ActionsProxAtend
         onOpenChange={setEditarOpen}
         agendamento={agendamento}
       />
-      
+
       <ArquivosDialog
         open={arquivoOpen}
         onOpenChange={setArquivoOpen}
