@@ -15,6 +15,8 @@ import { useState } from "react";
 import { ArquivosDialog } from "./arquivos";
 import { Agendamento } from "@/app/schemas/agendamento/agendamento";
 import { EditarAgendamento } from "../_agendamento/edit-agendamento";
+import { FichaPacienteDialog } from "../_ficha-paciente/ficha-paciente-dialog";
+import InformacoesPagamento from "../_informacoes-pagamentos";
 
 interface ActionsProxAtendimentoProps {
   agendamento: Agendamento;
@@ -25,6 +27,8 @@ export default function ActionsProxAtendimento({
 }: ActionsProxAtendimentoProps) {
   const [editarOpen, setEditarOpen] = useState(false);
   const [arquivoOpen, setArquivoOpen] = useState(false);
+  const [fichaOpen, setFichaOpen] = useState(false);
+  const [pagamentoOpen, setPagamentoOpen] = useState(false);
   return (
     <>
       <DropdownMenu>
@@ -46,7 +50,7 @@ export default function ActionsProxAtendimento({
           <DropdownMenuItem>Contatar </DropdownMenuItem>
 
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Ficha do paciente</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setFichaOpen(true)}>Ficha do paciente</DropdownMenuItem>
           <DropdownMenuItem onClick={() => setArquivoOpen(true)}>
             Arquivos
           </DropdownMenuItem>
@@ -54,7 +58,7 @@ export default function ActionsProxAtendimento({
             Editar
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem> Ver informações de pagamento</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setPagamentoOpen(true)}>Ver informações de pagamento</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem> Cancelar</DropdownMenuItem>
         </DropdownMenuContent>
@@ -70,6 +74,17 @@ export default function ActionsProxAtendimento({
         open={arquivoOpen}
         onOpenChange={setArquivoOpen}
         agendamento={agendamento}
+      />
+
+      <FichaPacienteDialog
+        open={fichaOpen}
+        onOpenChange={setFichaOpen}
+        agendamento={agendamento}
+      />
+      <InformacoesPagamento
+        open={pagamentoOpen}
+        onOpenChange={setPagamentoOpen}
+        agendamentoPagamento={agendamento.id}
       />
     </>
   );
