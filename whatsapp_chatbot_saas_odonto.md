@@ -6,7 +6,7 @@ Stack utilizada:
 - **Backend:** Django + Django REST Framework
 - **Processamento assíncrono:** Celery
 - **Frontend:** Next.js + React Query + Zod + Axios
-- **Mensageria:** WhatsApp Cloud API (Meta) ou Twilio
+- **Mensageria:** WhatsApp Cloud API (Meta) ou EvolutionAPI
 
 ---
 

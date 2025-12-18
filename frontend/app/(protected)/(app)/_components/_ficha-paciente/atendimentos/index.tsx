@@ -2,25 +2,20 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-interface ConsultaData {
-  id: number;
-  data: string;
-  tipo: string;
-  dentista: string;
-  status: string;
-  observacoes?: string;
-}
+import { Agendamento } from "@/app/schemas/agendamento/agendamento";
+import { formatarDataHora } from "@/app/functions/utils/formatar-data-hora";
+import { getStatusConfig } from "@/app/functions/utils/get-status-config";
 
 interface AtendimentosProps {
-  consultas: ConsultaData[];
+  pacienteId: number;
+  consultas?: Agendamento[];
 }
 
-export function Atendimentos({ consultas }: AtendimentosProps) {
+export function Atendimentos({ pacienteId, consultas = [] }: AtendimentosProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Consultas Anteriores</CardTitle>
+        <CardTitle className="text-lg">Consultas do Paciente</CardTitle>
       </CardHeader>
       <CardContent>
         {consultas.length > 0 ? (
@@ -32,17 +27,19 @@ export function Atendimentos({ consultas }: AtendimentosProps) {
               >
                 <div className="flex items-start justify-between mb-2">
                   <div>
-                    <h4 className="font-semibold">{consulta.tipo}</h4>
+                    <h4 className="font-semibold">{consulta.motivo || "Consulta"}</h4>
                     <p className="text-sm text-muted-foreground">
-                      {new Date(consulta.data).toLocaleDateString("pt-BR")}
+                      {formatarDataHora(consulta.data_hora)}
                     </p>
                   </div>
-                  <Badge variant="outline">{consulta.status}</Badge>
+                  <Badge className={getStatusConfig(consulta.status).className}>
+                    {getStatusConfig(consulta.status).label}
+                  </Badge>
                 </div>
                 <div className="space-y-1 text-sm">
                   <p>
                     <span className="text-muted-foreground">Dentista:</span>{" "}
-                    {consulta.dentista}
+                    {consulta.dentista_detail?.nome_completo || "Não informado"}
                   </p>
                   {consulta.observacoes && (
                     <p>

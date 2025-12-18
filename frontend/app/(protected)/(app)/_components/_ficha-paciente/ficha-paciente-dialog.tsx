@@ -26,7 +26,7 @@ export function FichaPacienteDialog({
 
         <FichaPaciente 
           pacienteId={agendamento.paciente_detail.id}
-          pacienteData={agendamento.paciente_detail}
+      
         />
       </DialogContent>
     </Dialog>

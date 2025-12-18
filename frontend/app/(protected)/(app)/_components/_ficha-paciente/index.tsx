@@ -19,108 +19,53 @@ import { DadosPessoais } from "./dados-pessoais";
 import { HistoricoMedico } from "./historico-medico";
 import { Atendimentos } from "./atendimentos";
 import { Tratamentos } from "./tratamentos";
+import { useFichaPaciente } from "@/hooks/ficha-paciente/useFichaPaciente";
+import Loading from "@/components/loading/Loading";
 
-interface PacienteData {
-  id: number;
-  nome: string;
-  telefone: string | null;
-  email: string | null;
-  dentista: number;
-  dataNascimento?: string;
-  cpf?: string;
-  endereco?: string;
-  cidade?: string;
-  estado?: string;
-  cep?: string;
-  observacoes?: string;
-}
+
 
 interface FichaPacienteProps {
-  pacienteId?: number;
-  pacienteData?: PacienteData;
-  isLoading?: boolean;
+  pacienteId: number;
+
 }
 
 export default function FichaPaciente({ 
   pacienteId, 
-  pacienteData,
-  isLoading = false 
+ 
 }: FichaPacienteProps) {
   
-  // Mock data para demonstração - substitua com dados reais da API
-  const mockPaciente: PacienteData = pacienteData || {
-    id: pacienteId || 1,
-    nome: "Maria Silva Santos",
-    telefone: "(11) 98765-4321",
-    email: "maria.silva@email.com",
-    dentista: 1,
-    dataNascimento: "1985-03-15",
-    cpf: "123.456.789-00",
-    endereco: "Rua das Flores, 123",
-    cidade: "São Paulo",
-    estado: "SP",
-    cep: "01234-567",
-    observacoes: "Paciente com histórico de sensibilidade dentária"
-  };
-
-  const historicoConsultas = [
-    {
-      id: 1,
-      data: "2024-01-10",
-      tipo: "Limpeza",
-      dentista: "Dr. João Silva",
-      status: "Concluída",
-      observacoes: "Limpeza completa realizada"
-    },
-    {
-      id: 2,
-      data: "2023-12-15",
-      tipo: "Consulta",
-      dentista: "Dr. João Silva",
-      status: "Concluída",
-      observacoes: "Avaliação geral"
-    },
-    {
-      id: 3,
-      data: "2023-11-20",
-      tipo: "Tratamento Canal",
-      dentista: "Dr. João Silva",
-      status: "Concluída",
-      observacoes: "Canal no dente 16"
-    }
-  ];
-
-  const planoTratamento = [
-    {
-      id: 1,
-      procedimento: "Restauração",
-      dente: "26",
-      status: "Pendente",
-      prioridade: "Alta",
-      valor: "R$ 250,00"
-    },
-    {
-      id: 2,
-      procedimento: "Limpeza",
-      dente: "-",
-      status: "Agendado",
-      prioridade: "Média",
-      valor: "R$ 150,00"
-    }
-  ];
-
-  const historicoMedico = {
-    alergias: ["Penicilina"],
-    medicamentosUso: ["Losartana 50mg"],
-    condicoesPreexistentes: ["Hipertensão"],
-    cirurgiasAnteriores: ["Apendicectomia (2010)"]
-  };
+  // Estratégia Híbrida: Busca inicial completa
+  const { data: ficha, isLoading, error } = useFichaPaciente({ 
+    pacienteId,
+    enabled: !!pacienteId 
+  });
 
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <Skeleton className="h-12 w-full" />
-        <Skeleton className="h-96 w-full" />
+    <Loading />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 text-center text-red-600">
+        <p>Erro ao carregar ficha do paciente</p>
+        <p className="text-sm text-muted-foreground">{error.message}</p>
+      </div>
+    );
+  }
+
+  // Usa dados da API ou fallback para pacienteData
+  const paciente = ficha?.data 
+
+
+
+  if (!paciente) {
+    return (
+      <div className="p-4 text-center text-muted-foreground">
+        <p>Nenhum dado disponível</p>
       </div>
     );
   }
@@ -136,9 +81,9 @@ export default function FichaPaciente({
                 <User className="w-8 h-8 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-2xl">{mockPaciente.nome}</CardTitle>
+                <CardTitle className="text-2xl">{paciente.nome}</CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Paciente ID: #{mockPaciente.id}
+                  Paciente ID: #{paciente.id}
                 </p>
               </div>
             </div>
@@ -156,7 +101,7 @@ export default function FichaPaciente({
                   Telefone
                 </Label>
                 <p className="text-sm font-medium">
-                  {mockPaciente.telefone || "-"}
+                  {paciente.telefone || "-"}
                 </p>
               </div>
             </div>
@@ -165,7 +110,7 @@ export default function FichaPaciente({
               <div>
                 <Label className="text-xs text-muted-foreground">Email</Label>
                 <p className="text-sm font-medium">
-                  {mockPaciente.email || "-"}
+                  {paciente.email || "-"}
                 </p>
               </div>
             </div>
@@ -176,8 +121,8 @@ export default function FichaPaciente({
                   Data de Nascimento
                 </Label>
                 <p className="text-sm font-medium">
-                  {mockPaciente.dataNascimento
-                    ? new Date(mockPaciente.dataNascimento).toLocaleDateString(
+                  {paciente.data_nascimento
+                    ? new Date(paciente.data_nascimento).toLocaleDateString(
                         "pt-BR"
                       )
                     : "-"}
@@ -225,28 +170,37 @@ export default function FichaPaciente({
           value="dados-pessoais"
           className="space-y-4 border-2 border-slate-800 rounded-lg"
         >
-          <DadosPessoais paciente={mockPaciente} />
+          <DadosPessoais paciente={paciente} />
         </TabsContent>
 
         <TabsContent
           value="historico-medico"
           className="space-y-4 border-2 border-slate-800 rounded-lg"
         >
-          <HistoricoMedico historicoMedico={historicoMedico} />
+          <HistoricoMedico 
+            pacienteId={pacienteId}
+            initialData={ficha?.data.historico_medico}
+          />
         </TabsContent>
 
         <TabsContent
           value="atendimentos"
           className="space-y-4 border-2 border-slate-800 rounded-lg"
         >
-          <Atendimentos consultas={historicoConsultas} />
+          <Atendimentos 
+            pacienteId={pacienteId}
+            consultas={ficha?.data.consultas}
+          />
         </TabsContent>
 
         <TabsContent
           value="tratamentos"
           className="space-y-4 border-2 border-slate-800 rounded-lg"
         >
-          <Tratamentos tratamentos={planoTratamento} />
+          <Tratamentos 
+            pacienteId={pacienteId}
+            initialData={ficha?.data.planos_tratamento}
+          />
         </TabsContent>
       </Tabs>
     </div>

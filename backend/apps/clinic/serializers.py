@@ -107,7 +107,8 @@ class FichaPacienteSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Paciente
-        fields = ['id', 'nome', 'telefone', 'email', 'data_nascimento', 
+        fields = ['id', 'nome', 'telefone', 'email',
+        'cpf', 'data_nascimento', 
                   'endereco', 'cidade', 'estado', 'cep', 'observacoes',
                   'historico_medico', 'planos_tratamento', 'consultas']
         read_only_fields = ['id']

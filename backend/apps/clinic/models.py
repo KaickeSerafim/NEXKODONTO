@@ -8,6 +8,7 @@ USER = settings.AUTH_USER_MODEL
 
 class Paciente(models.Model):
     nome = models.CharField(max_length=200)
+    cpf = models.CharField(max_length=14, null=True, blank=True)
     telefone = models.CharField(max_length=30, null=True, blank=True)
     email = models.EmailField(null=True, blank=True)
     # paciente pertence a um dentista (responsável)

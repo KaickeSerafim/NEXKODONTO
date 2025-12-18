@@ -1,25 +1,13 @@
 "use client";
 
+import { FichaPaciente } from "@/app/schemas/ficha-paciente/fichaPaciente";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 
-interface PacienteData {
-  id: number;
-  nome: string;
-  telefone: string | null;
-  email: string | null;
-  dentista: number;
-  dataNascimento?: string;
-  cpf?: string;
-  endereco?: string;
-  cidade?: string;
-  estado?: string;
-  cep?: string;
-  observacoes?: string;
-}
+
 
 interface DadosPessoaisProps {
-  paciente: PacienteData;
+  paciente: FichaPaciente;
 }
 
 export function DadosPessoais({ paciente }: DadosPessoaisProps) {
@@ -37,13 +25,13 @@ export function DadosPessoais({ paciente }: DadosPessoaisProps) {
             </div>
             <div className="space-y-2">
               <Label className="text-muted-foreground">CPF</Label>
-              <p className="font-medium">{paciente.cpf || "-"}</p>
+              <p className="font-medium">{paciente.cep || "-"}</p>
             </div>
             <div className="space-y-2">
               <Label className="text-muted-foreground">Data de Nascimento</Label>
               <p className="font-medium">
-                {paciente.dataNascimento 
-                  ? new Date(paciente.dataNascimento).toLocaleDateString("pt-BR")
+                {paciente.data_nascimento 
+                  ? new Date(paciente.data_nascimento).toLocaleDateString("pt-BR")
                   : "-"}
               </p>
             </div>

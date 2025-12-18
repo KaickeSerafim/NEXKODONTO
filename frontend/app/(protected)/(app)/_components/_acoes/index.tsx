@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, File, FileBadge, MessageSquare, Pencil, Receipt, Trash2, UserRound} from "lucide-react";
 import { useState } from "react";
 
 import { ArquivosDialog } from "./arquivos";
@@ -17,6 +17,7 @@ import { Agendamento } from "@/app/schemas/agendamento/agendamento";
 import { EditarAgendamento } from "../_agendamento/edit-agendamento";
 import { FichaPacienteDialog } from "../_ficha-paciente/ficha-paciente-dialog";
 import InformacoesPagamento from "../_informacoes-pagamentos";
+import DeleteAgendamento from "../_agendamento/delete-agendamento";
 
 interface ActionsProxAtendimentoProps {
   agendamento: Agendamento;
@@ -29,6 +30,7 @@ export default function ActionsProxAtendimento({
   const [arquivoOpen, setArquivoOpen] = useState(false);
   const [fichaOpen, setFichaOpen] = useState(false);
   const [pagamentoOpen, setPagamentoOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   return (
     <>
       <DropdownMenu>
@@ -41,26 +43,26 @@ export default function ActionsProxAtendimento({
 
         <DropdownMenuContent
           align="end"
-          className="w-40 bg-slate-800  text-white"
+          className="w-45 bg-slate-800  text-white"
         >
           <DropdownMenuLabel className="text-center bg-slate-500">
             Ações
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Contatar </DropdownMenuItem>
+          <DropdownMenuItem> <MessageSquare />Contatar </DropdownMenuItem>
 
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setFichaOpen(true)}>Ficha do paciente</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setFichaOpen(true)}> <FileBadge />Ficha do paciente</DropdownMenuItem>
           <DropdownMenuItem onClick={() => setArquivoOpen(true)}>
-            Arquivos
+            <File />   Arquivos
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setEditarOpen(true)}>
-            Editar
+           <Pencil /> Editar
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setPagamentoOpen(true)}>Ver informações de pagamento</DropdownMenuItem>
+          <DropdownMenuItem  className="" onClick={() => setPagamentoOpen(true)}><Receipt />Ver informações de pagamento</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem> Cancelar</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setDeleteOpen(true)}> <Trash2 />Cancelar agendamento</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -86,6 +88,11 @@ export default function ActionsProxAtendimento({
         onOpenChange={setPagamentoOpen}
         agendamentoId={agendamento.id}
         pacienteId={agendamento.paciente_id || agendamento.paciente_detail?.id}
+      />
+      <DeleteAgendamento
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        agendamentoId={agendamento.id}
       />
     </>
   );

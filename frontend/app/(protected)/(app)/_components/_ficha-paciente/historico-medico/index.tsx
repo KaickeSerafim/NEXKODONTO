@@ -2,20 +2,35 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Briefcase } from "lucide-react";
+import { useHistoricoMedico } from "@/hooks/ficha-paciente/historico-medico/useHistoricoMedico";
 
-interface HistoricoMedicoData {
-  alergias: string[];
-  medicamentosUso: string[];
-  condicoesPreexistentes: string[];
-  cirurgiasAnteriores: string[];
-}
+import { HistoricoMedicoType } from "@/app/schemas/ficha-paciente/historicoMedico";
+
+
 
 interface HistoricoMedicoProps {
-  historicoMedico: HistoricoMedicoData;
+  pacienteId: number;
+  initialData?: HistoricoMedicoType | null;
 }
 
-export function HistoricoMedico({ historicoMedico }: HistoricoMedicoProps) {
+export function HistoricoMedico({ pacienteId, initialData }: HistoricoMedicoProps) {
+  // Hook próprio para possíveis atualizações futuras
+  const { data } = useHistoricoMedico({ pacienteId });
+  
+  // Usa dados do hook ou fallback para initialData
+  const historico = data?.data || initialData;
+
+  // Função auxiliar para converter string em array
+  const parseToArray = (value?: string | null): string[] => {
+    if (!value) return [];
+    return value.split(',').map(item => item.trim()).filter(Boolean);
+  };
+
+  const alergias = parseToArray(historico?.alergias);
+  const medicamentos = parseToArray(historico?.medicamentos);
+  const condicoes = parseToArray(historico?.condicoes_medicas);
+
   return (
     <div className="space-y-4">
       <Card>
@@ -26,9 +41,9 @@ export function HistoricoMedico({ historicoMedico }: HistoricoMedicoProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {historicoMedico.alergias.length > 0 ? (
+          {alergias.length > 0 ? (
             <div className="flex flex-wrap gap-2">
-              {historicoMedico.alergias.map((alergia, index) => (
+              {alergias.map((alergia, index) => (
                 <Badge key={index} variant="destructive">
                   {alergia}
                 </Badge>
@@ -42,12 +57,13 @@ export function HistoricoMedico({ historicoMedico }: HistoricoMedicoProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Medicamentos em Uso</CardTitle>
+          
+          <CardTitle className="text-lg flex items-center gap-2">  <Briefcase />Medicamentos em Uso</CardTitle>
         </CardHeader>
         <CardContent>
-          {historicoMedico.medicamentosUso.length > 0 ? (
+          {medicamentos.length > 0 ? (
             <ul className="space-y-2">
-              {historicoMedico.medicamentosUso.map((medicamento, index) => (
+              {medicamentos.map((medicamento, index) => (
                 <li key={index} className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-primary" />
                   <span className="text-sm">{medicamento}</span>
@@ -65,9 +81,9 @@ export function HistoricoMedico({ historicoMedico }: HistoricoMedicoProps) {
           <CardTitle className="text-lg">Condições Pré-existentes</CardTitle>
         </CardHeader>
         <CardContent>
-          {historicoMedico.condicoesPreexistentes.length > 0 ? (
+          {condicoes.length > 0 ? (
             <ul className="space-y-2">
-              {historicoMedico.condicoesPreexistentes.map((condicao, index) => (
+              {condicoes.map((condicao, index) => (
                 <li key={index} className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-orange-500" />
                   <span className="text-sm">{condicao}</span>
@@ -76,26 +92,6 @@ export function HistoricoMedico({ historicoMedico }: HistoricoMedicoProps) {
             </ul>
           ) : (
             <p className="text-sm text-muted-foreground">Nenhuma condição registrada</p>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Cirurgias Anteriores</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {historicoMedico.cirurgiasAnteriores.length > 0 ? (
-            <ul className="space-y-2">
-              {historicoMedico.cirurgiasAnteriores.map((cirurgia, index) => (
-                <li key={index} className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-blue-500" />
-                  <span className="text-sm">{cirurgia}</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-muted-foreground">Nenhuma cirurgia registrada</p>
           )}
         </CardContent>
       </Card>
