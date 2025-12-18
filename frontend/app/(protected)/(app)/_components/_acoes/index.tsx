@@ -84,7 +84,8 @@ export default function ActionsProxAtendimento({
       <InformacoesPagamento
         open={pagamentoOpen}
         onOpenChange={setPagamentoOpen}
-        agendamentoPagamento={agendamento.id}
+        agendamentoId={agendamento.id}
+        pacienteId={agendamento.paciente_id || agendamento.paciente_detail?.id}
       />
     </>
   );

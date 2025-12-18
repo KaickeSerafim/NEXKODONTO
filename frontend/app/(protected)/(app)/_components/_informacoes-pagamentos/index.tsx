@@ -1,83 +1,97 @@
 "use client";
 
-
-import { Label } from "@/components/ui/label";
-
+import { Button } from "@/components/ui/button";
 import Loading from "@/components/loading/Loading";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-
-interface pacientePagamentos {
-  id: number;
-  nome: string;
-  telefone: string | null;
-  email: string | null;
-  dentista: number;
-  dataNascimento?: string;
-  cpf?: string;
-  endereco?: string;
-  cidade?: string;
-  estado?: string;
-  cep?: string;
-  observacoes?: string;
-}
+import { usePagamentosPorAgendamento } from "@/hooks/pagamento/usePagamentosPorAgendamento";
+import { usePagamentosPorPaciente } from "@/hooks/pagamento/usePagamentosPorPaciente";
+import { useMemo } from "react";
+import { PagamentoDestaque } from "./PagamentoDestaque";
+import { HistoricoPagamentos } from "./HistoricoPagamentos";
 
 interface InformacoesPagamentosProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-  agendamentoPagamento?: number;
-  pacientePagamentos?: pacientePagamentos;
-  isLoading?: boolean;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  agendamentoId?: number | string;
+  pacienteId?: number | string;
 }
 
 export default function InformacoesPagamento({
   open,
   onOpenChange,
-  pacientePagamentos,
-  agendamentoPagamento,
-  isLoading = false,
+  agendamentoId,
+  pacienteId,
 }: InformacoesPagamentosProps) {
-  // Mock data para demonstração - substitua com dados reais da API
+  // Buscar pagamentos do agendamento
+  const { data: agendamentoResponse, isLoading: loadingAgendamento, error: errorAgendamento } = usePagamentosPorAgendamento({ 
+    agendamentoId: agendamentoId || 0, 
+    enabled: open && !!agendamentoId 
+  });
+
+  // Buscar pagamentos do paciente
+  const { data: pacienteResponse, isLoading: loadingPaciente, error: errorPaciente } = usePagamentosPorPaciente({ 
+    pacienteId: pacienteId || 0, 
+    enabled: open && !!pacienteId 
+  });
+
+  const isLoading = loadingAgendamento || loadingPaciente;
+
+  // Separar pagamento do agendamento e histórico do paciente
+  const { pagamentoAgendamento, historicoOutrosPagamentos } = useMemo(() => {
+    const pagamentosAgendamento = agendamentoResponse?.data || [];
+    const pagamentosPaciente = pacienteResponse?.data || [];
+
+    // Primeiro pagamento do agendamento (se houver)
+    const pagamentoAgendamento = pagamentosAgendamento[0] || null;
+
+    // Filtrar histórico: todos os pagamentos do paciente EXCETO o do agendamento atual
+    const historicoOutrosPagamentos = pagamentosPaciente.filter(
+      (p) => p.agendamento !== agendamentoId
+    );
+
+    return { pagamentoAgendamento, historicoOutrosPagamentos };
+  }, [agendamentoResponse, pacienteResponse, agendamentoId]);
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <Loading />
-      </div>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent>
+          <div className="space-y-4 py-8">
+            <Loading />
+          </div>
+        </DialogContent>
+      </Dialog>
     );
   }
 
+  const hasAnyPayment = pagamentoAgendamento || historicoOutrosPagamentos.length > 0;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Editar Agendamento</DialogTitle>
+          <DialogTitle>Informações de Pagamentos</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-teste
+        <div className="space-y-6 py-4">
+          {/* Pagamento do Agendamento Atual */}
+          <PagamentoDestaque pagamento={pagamentoAgendamento} />
+
+          {/* Histórico de Outros Pagamentos do Paciente */}
+          <HistoricoPagamentos pagamentos={historicoOutrosPagamentos} />
+
+          {/* Mensagem quando não há nenhum pagamento */}
+          {!hasAnyPayment && (
+            <div className="py-8 text-center text-muted-foreground">
+              <p>Nenhum pagamento encontrado</p>
             </div>
+          )}
 
-            <div className="space-y-2">
-teste
-            </div>
-          </div>
-
-          <div className="space-y-2">
-teste
-          </div>
-
-          <div className="space-y-2">
-teste
-          </div>
-
-          <div className="space-y-2">
-teste
-          </div>
-
-          <div className="flex justify-end gap-2 pt-4">
-teste
+          {/* Botão de Fechar */}
+          <div className="flex justify-end pt-4 border-t">
+            <Button onClick={() => onOpenChange(false)}>
+              Fechar
+            </Button>
           </div>
         </div>
       </DialogContent>
