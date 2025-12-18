@@ -1,12 +1,13 @@
 from rest_framework import serializers
-from .models import Paciente, Agendamento
+from .models import Paciente, Agendamento, HistoricoMedico, PlanoTratamento, Atendimentos
 from apps.usuarios.models import CustomUser
 from apps.billing.models import Pagamento
 
 class PacienteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Paciente
-        fields = ['id', 'nome', 'telefone', 'email', 'dentista']
+        fields = ['id', 'nome', 'telefone', 'email', 'dentista', 'data_nascimento', 
+                  'endereco', 'cidade', 'estado', 'cep', 'observacoes']
         read_only_fields = ['id']
 
 class DentistaSerializer(serializers.ModelSerializer):
@@ -70,3 +71,43 @@ class AgendamentoSerializer(serializers.ModelSerializer):
         if 'paciente_id' in validated_data:
             instance.paciente_id = validated_data.pop('paciente_id')
         return super().update(instance, validated_data)
+
+# Novos Serializers para Ficha do Paciente
+
+class HistoricoMedicoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HistoricoMedico
+        fields = ['id', 'paciente', 'alergias', 'condicoes_medicas', 'medicamentos', 
+                  'criado_em', 'atualizado_em']
+        read_only_fields = ['id', 'paciente', 'criado_em', 'atualizado_em']
+
+class PlanoTratamentoSerializer(serializers.ModelSerializer):
+    dentista_nome = serializers.CharField(source='dentista.get_full_name', read_only=True)
+    
+    class Meta:
+        model = PlanoTratamento
+        fields = ['id', 'paciente', 'dentista', 'dentista_nome', 'prioridade', 
+                  'descricao', 'custo_estimado', 'criado_em', 'atualizado_em']
+        read_only_fields = ['id', 'criado_em', 'atualizado_em', 'dentista_nome']
+
+class AtendimentoSerializer(serializers.ModelSerializer):
+    agendamento_data = serializers.DateTimeField(source='agendamento.data_hora', read_only=True)
+    paciente_nome = serializers.CharField(source='agendamento.paciente.nome', read_only=True)
+    
+    class Meta:
+        model = Atendimentos
+        fields = ['id', 'agendamento', 'agendamento_data', 'paciente_nome', 'diagnostico', 
+                  'tratamento_realizado', 'proximo_passos', 'criado_em', 'atualizado_em']
+        read_only_fields = ['id', 'criado_em', 'atualizado_em', 'agendamento_data', 'paciente_nome']
+
+class FichaPacienteSerializer(serializers.ModelSerializer):
+    historico_medico = HistoricoMedicoSerializer(read_only=True)
+    planos_tratamento = PlanoTratamentoSerializer(many=True, read_only=True)
+    consultas = AgendamentoSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Paciente
+        fields = ['id', 'nome', 'telefone', 'email', 'data_nascimento', 
+                  'endereco', 'cidade', 'estado', 'cep', 'observacoes',
+                  'historico_medico', 'planos_tratamento', 'consultas']
+        read_only_fields = ['id']

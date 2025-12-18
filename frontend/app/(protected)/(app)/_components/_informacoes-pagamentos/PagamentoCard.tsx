@@ -3,6 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { MetodoPagamentoLabels, StatusPagamentoLabels, Pagamento } from "@/app/schemas/pagamento/pagamento";
 import { FileText, Calendar } from "lucide-react";
 import { getStatusPagamentoConfig } from "@/app/functions/utils/get-status-pagamento-config";
+import { formatarMoeda } from "@/app/functions/utils/formatar-moeda";
+import { formatarDataHora } from "@/app/functions/utils/formatar-data-hora";
 
 interface PagamentoCardProps {
   pagamento: Pagamento;
@@ -10,27 +12,6 @@ interface PagamentoCardProps {
 }
 
 export function PagamentoCard({ pagamento, isDestaque = false }: PagamentoCardProps) {
-  const formatCurrency = (value?: number) => {
-    if (!value) return 'R$ 0,00';
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(value);
-  };
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return '-';
-    return new Date(dateString).toLocaleString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-
-
   return (
     <div 
       className={`space-y-4 p-4 rounded-lg border ${
@@ -48,7 +29,7 @@ export function PagamentoCard({ pagamento, isDestaque = false }: PagamentoCardPr
         <div className="space-y-1">
           <Label className="text-xs text-muted-foreground">Valor</Label>
           <p className={`font-semibold ${isDestaque ? 'text-xl' : 'text-lg'}`}>
-            {formatCurrency(pagamento.valor)}
+            {formatarMoeda(pagamento.valor)}
           </p>
         </div>
 
@@ -72,7 +53,7 @@ export function PagamentoCard({ pagamento, isDestaque = false }: PagamentoCardPr
       {pagamento.pago_em && (
         <div className="space-y-1">
           <Label className="text-xs text-muted-foreground">Data de Pagamento</Label>
-          <p className="text-sm">{formatDate(pagamento.pago_em)}</p>
+          <p className="text-sm">{formatarDataHora(pagamento.pago_em)}</p>
         </div>
       )}
 
