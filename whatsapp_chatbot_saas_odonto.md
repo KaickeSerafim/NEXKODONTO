@@ -111,10 +111,10 @@ Histórico completo de atendimento.
 
 ```python
 class WhatsAppConversation(models.Model):
-    dentist = models.ForeignKey(Dentist, on_delete=models.CASCADE)
-    patient_phone = models.CharField(max_length=20)
+    dentista = models.ForeignKey(Dentist, on_delete=models.CASCADE)
+    paciente_telefone = models.CharField(max_length=20)
 
-    last_message_at = models.DateTimeField(auto_now=True)
+    data_ultima_mensagem = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 ```
 
@@ -128,7 +128,7 @@ class WhatsAppMessage(models.Model):
 
     sender = models.CharField(
         max_length=10,
-        choices=[("patient", "Patient"), ("bot", "Bot")]
+        choices=[("paciente", "Paciente"), ("bot", "Bot")]
     )
 
     content = models.TextField()
@@ -221,15 +221,87 @@ Após validação do MVP:
 
 ---
 
-## 📦 Provedores de WhatsApp
+Recomendado: **WAHA (WhatsApp HTTP API)**
+- **Doc:** https://waha.devlike.pro/
+- **Por que?** Estável, leve, Docker-first, excelente documentação Swagger.
 
-Recomendados:
-1. **WhatsApp Cloud API (Meta)** – oficial, escalável
-2. **Twilio** – fácil integração, custo maior
-3. **360Dialog** – intermediário
+### � Exemplos de Endpoints WAHA (Consumo via Django)
 
-❌ Não utilizar APIs não oficiais (WhatsApp Web)
+O Django atuará como o cliente da API WAHA.
 
+#### 1. Iniciar Sessão (Conectar Dentista)
+`POST /api/sessions/`
+
+```python
+import requests
+
+def start_whatsapp_session(dentist_id):
+    url = "http://waha:3000/api/sessions"
+    payload = {
+        "name": f"clinica_{dentist_id}",
+        "config": {
+            "webhooks": [
+                {
+                    "url": "https://seu-saas.com/api/webhooks/whatsapp/",
+                    "events": ["message", "session.status"]
+                }
+            ]
+        }
+    }
+    response = requests.post(url, json=payload)
+    return response.json() # Retorna infos para montar o QR Code
+```
+
+#### 2. Pegar QR Code (Imagem)
+`GET /api/sessions/{session_name}/auth/qr?format=image`
+
+Use isso para exibir no Frontend pro dentista escanear.
+
+#### 3. Enviar Mensagem de Texto
+`POST /api/send/text`
+
+```python
+def send_whatsapp_message(session_name, phone, text):
+    url = "http://waha:3000/api/send/text"
+    payload = {
+        "session": session_name,
+        "chatId": f"{phone}@c.us",
+        "text": text
+    }
+    requests.post(url, json=payload)
+```
+
+#### 4. Simular "Digitando..."
+`POST /api/sessions/{session_name}/typing`
+
+---
+
+## 🧠 Cérebro do Chatbot: Qual IA usar?
+
+Para um SaaS de Odontologia (focado em agendamento preciso), a **precisão** é mais importante que a criatividade.
+
+### Opção A: n8n (Low-Code) ⚠️
+- **Como funciona:** Webhook do WAHA -> n8n -> OpenAI -> API Django.
+- **Prós:** Visual, fácil de montar fluxos simples.
+- **Contras (SaaS):** Difícil escalar. Você teria que ter um "workflow mestre" gigante ou um por cliente. Gerenciar autenticação e estado da conversa no n8n para milhares de dentistas é complexo.
+- **Veredito:** Bom para MVP rápido, ruim para SaaS robusto em escala.
+
+### Opção B: Typebot (Fluxo Estruturado) ⭐
+- **Como funciona:** O usuário entra num fluxo pré-definido (árvore de decisão) que pode ter blocos de IA.
+- **Prós:** UX excelente, coleta dados estruturados (Nome, Data) muito bem.
+- **Contras:** Integração direta com o banco do Django para verificar disponibilidade de horário requer expor endpoints públicos da sua API.
+
+### Opção C: Django + OpenAI (Function Calling) 🏆 **RECOMENDADO**
+- **Como funciona:** O Django recebe a mensagem, consulta o histórico e manda pra OpenAI com "ferramentas" disponíveis (ex: `check_schedule`, `book_appointment`).
+- **Prós:**
+  - **Acesso Direto ao Banco:** O Django já tem os models de Agenda. Não precisa criar API intermediária.
+  - **Controle:** Você define exatamente as regras de negócio no Python.
+  - **Custo:** Paga apenas tokens da OpenAI, sem pagar licença de n8n/Typebot cloud.
+- **Setup:**
+  - Lib `langchain` ou `openai` direta.
+  - Celery para fila de processamento.
+
+---
 ---
 
 ## 🔐 Considerações Importantes

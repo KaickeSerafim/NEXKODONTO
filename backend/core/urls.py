@@ -26,6 +26,7 @@ urlpatterns = [
     path('api/v1/', include('apps.clinic.urls')),
     path('api/v1/', include('apps.documents.urls')),
     path('api/v1/', include('apps.billing.urls')),
+    path('api/v1/whatsapp/', include('apps.whatsapp.urls')),
 ]
 
 if settings.DEBUG:
