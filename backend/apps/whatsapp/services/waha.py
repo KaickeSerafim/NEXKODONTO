@@ -4,7 +4,7 @@ import logging
 class WahaService:
     def __init__(self):
         # URL interna do container na rede Docker
-        self.__api_url = 'http://waha:3000'
+        self.__api_url = 'http://waha:3030'
         self.headers = {
             'Content-Type': 'application/json',
         }

@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from datetime import timedelta
 from .choices import StatusAgendamento, PrioridadeTratamento
 
 
@@ -23,14 +24,28 @@ class Paciente(models.Model):
     def __str__(self):
         return f"{self.nome} ({self.dentista.username})"
 
+class Procedimento(models.Model):
+    # Relacionado ao dentista para cada um ter seus preços e durações
+    dentista = models.ForeignKey(USER, on_delete=models.CASCADE, related_name='procedimentos')
+    nome = models.CharField(max_length=100) 
+    duracao_minutos = models.PositiveIntegerField(default=30) 
+    preco_base = models.DecimalField(max_digits=10, decimal_places=2)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.nome} ({self.duracao_minutos} min)"
 
 class Agendamento(models.Model):
+    # NOVO: Vinculamos o procedimento para saber a duração
+    procedimento = models.ForeignKey(Procedimento, on_delete=models.PROTECT, related_name='agendamentos', null=True)
 
 
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='consultas')
     dentista = models.ForeignKey(USER, on_delete=models.CASCADE, related_name='consultas')
     criado_por = models.ForeignKey(USER, on_delete=models.SET_NULL, null=True, blank=True, related_name='consultas_criadas')
     data_hora = models.DateTimeField()
+    data_hora_fim = models.DateTimeField(editable=False, null=True, blank=True)
     motivo = models.CharField(max_length=255, null=True, blank=True)
     status = models.CharField(max_length=20, choices=StatusAgendamento.choices, default='agendada')
     observacoes = models.TextField(null=True, blank=True)
@@ -41,6 +56,12 @@ class Agendamento(models.Model):
 
     class Meta:
         ordering = ['-data_hora']
+
+    def save(self, *args, **kwargs):
+        # Lógica automática: Se tem procedimento, calcula o fim da consulta
+        if self.procedimento and self.data_hora:
+            self.data_hora_fim = self.data_hora + timedelta(minutes=self.procedimento.duracao_minutos)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Consulta {self.paciente.nome} - {self.dentista.username} @ {self.data_hora}"
@@ -81,3 +102,9 @@ class HistoricoMedico(models.Model):
 
     def __str__(self):
         return f"Histórico Médico de {self.paciente.nome}"
+
+
+
+
+
+

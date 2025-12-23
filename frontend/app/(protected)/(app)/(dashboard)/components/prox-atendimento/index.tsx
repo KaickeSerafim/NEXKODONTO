@@ -42,6 +42,8 @@ export default function ProximosAtendimentos({
 
   const agendamentosList = data?.data || agendamentos?.data || [];
 
+  console.log("RESPONSE DATA ", agendamentosList);
+
   if (isLoading) {
     return <Loading />;
   }
@@ -97,10 +99,8 @@ export default function ProximosAtendimentos({
                   {atendimento.paciente_detail.nome}
                 </h3>
                 <h4 className="text-sm font-semibold  text-gray-500 border rounded-lg pr-4 pl-2 bg-cyan-300">
-                  -{" "}
-                  {atendimento.motivo
-                    ? "" + atendimento.motivo
-                    : "Nao informado"}
+                  {atendimento.procedimento_detail.nome ? atendimento.procedimento_detail.nome : "-"}
+                  {atendimento.procedimento_detail.duracao_minutos ? " - " + atendimento.procedimento_detail.duracao_minutos + " min" : ""}
                 </h4>
               </div>
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 ">

@@ -6,8 +6,17 @@ const pacienteDetailSchema = z.object({
   id: z.number(),
   nome: z.string(),
   telefone: z.string().nullable(),
-  email: z.string().email().nullable(),
+  email: z.string().email().or(z.literal("")).nullable(),
   dentista: z.number(),
+});
+
+const procedimentoDetailSchema = z.object({
+  id: z.number(),
+  nome: z.string(),
+  duracao_minutos: z.number(),
+  preco_base: z.union([z.number(), z.string()]).transform((val) => Number(val)),
+  criado_em: z.string(),
+  atualizado_em: z.string().optional(),
 });
 
 const dentistaDetailSchema = z.object({
@@ -40,13 +49,16 @@ export const agendamentoSchema = z.object({
   id: z.number(),
   paciente_id: z.number().optional(),
   paciente_detail: pacienteDetailSchema,
+  procedimento_id: z.number().optional(),
+  procedimento_detail: procedimentoDetailSchema,
   dentista_detail: dentistaDetailSchema,
   criado_por_detail: criadoPorDetailSchema.nullable(),
   updated_by_detail: alteradoPorDetailSchema,
   pagamento: z.array(pagamentoSchema).optional().default([]),
   data_hora: z.string(),
+  data_hora_fim: z.string().nullable().optional(),
   motivo: z.string().nullable(),
-  status: z.enum(["agendada", "confirmada", "cancelada", "pendente"]),
+  status: z.string(),
   observacoes: z.string().nullable(),
   criado_em: z.string(),
   atualizado_em: z.string(),

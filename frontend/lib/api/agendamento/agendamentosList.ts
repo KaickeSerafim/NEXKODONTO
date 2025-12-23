@@ -21,7 +21,7 @@ export async function ListAgendamentos(params?: ListAgendamentosParams): Promise
     const url = `agendamentos/${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
 
     const response = await api.get(url);
-    console.log("Response data:", response.data); // Debugging line
+    
 
   
     const validatedResponse = agendamentoResponseSchema.parse(response.data);
