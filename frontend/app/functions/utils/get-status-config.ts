@@ -5,6 +5,7 @@ export const getStatusConfig = (status: string) => {
         label: "Confirmada",
         className: "bg-green-100 text-green-700 border-green-800",
       };
+    case "agendada":
     case "pendente":
       return {
         label: "Pendente",

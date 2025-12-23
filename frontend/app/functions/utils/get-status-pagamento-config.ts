@@ -2,13 +2,13 @@ export const getStatusPagamentoConfig = (status: string) => {
   switch (status) {
     case "pago":
       return {
-        label: "PAGO",
-        className: "bg-green-100 text-green-700 border-green-800 pl-2 pr-4",
+        label: "Pago",
+        className: "bg-green-100 text-green-700 border-green-200 pl-2 pr-4",
         icon: "Check",
       };
     case "pendente":
       return {
-        label: "Pendente",
+        label: "Pendente",  
         className: "bg-yellow-100 text-yellow-700 border-yellow-800",
         icon: "AlertCircle",
       };

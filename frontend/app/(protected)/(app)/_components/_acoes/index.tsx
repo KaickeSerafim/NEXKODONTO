@@ -23,7 +23,7 @@ interface ActionsProxAtendimentoProps {
   agendamento: Agendamento;
 }
 
-export default function ActionsProxAtendimento({
+export default function Actions({
   agendamento,
 }: ActionsProxAtendimentoProps) {
   const [editarOpen, setEditarOpen] = useState(false);
