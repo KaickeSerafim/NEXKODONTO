@@ -1,12 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Stethoscope } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/utils";
 import { AppointmentItem } from "./appointment-item";
 import { Agendamento } from "@/app/schemas/agendamento/agendamento";
+import ButtonOpcoesDiaCalendario from "./button-opcoes-dia-calendario";
 
 interface DiaCalendarioProps {
   day: number;
@@ -16,7 +17,19 @@ interface DiaCalendarioProps {
 }
 
 export function DiaCalendario({ day, activeDay, agendamentos, animationDelay }: DiaCalendarioProps) {
-  const sortedAgendamentos = [...agendamentos].sort((a, b) => a.data_hora.localeCompare(b.data_hora));
+  const [mostrarCancelados, setMostrarCancelados] = useState(false);
+  
+  // Filtra agendamentos cancelados (status === 'cancelada')
+  const agendamentosAtivos = agendamentos.filter(ag => ag.status !== 'cancelada');
+  const agendamentosCancelados = agendamentos.filter(ag => ag.status === 'cancelada');
+  
+  // Define quais agendamentos mostrar baseado no estado
+  const agendamentosVisiveis = mostrarCancelados ? agendamentos : agendamentosAtivos;
+  const sortedAgendamentos = [...agendamentosVisiveis].sort((a, b) => a.data_hora.localeCompare(b.data_hora));
+
+  const handleToggleCancelados = () => {
+    setMostrarCancelados(!mostrarCancelados);
+  };
 
   return (
     <motion.div
@@ -36,9 +49,21 @@ export function DiaCalendario({ day, activeDay, agendamentos, animationDelay }: 
           {day}
         </span>
         
-        <button className="h-6 w-6 opacity-0 group-hover:opacity-100 rounded-md text-gray-400 hover:text-primary hover:bg-primary/5 transition-all flex items-center justify-center">
-           <Plus className="w-3.5 h-3.5" />
-        </button>
+        {agendamentosAtivos.length > 0 ? (
+          <ButtonOpcoesDiaCalendario 
+            agendamentoIds={agendamentosAtivos.map(ag => ag.id)}
+            onVerCancelados={handleToggleCancelados}
+          />
+        ) : agendamentosCancelados.length > 0 ? (
+          <ButtonOpcoesDiaCalendario 
+            agendamentoIds={[]}
+            onVerCancelados={handleToggleCancelados}
+          />
+        ) : (
+          <button className="h-6 w-6 opacity-0 group-hover:opacity-100 rounded-md text-gray-400 hover:text-primary hover:bg-primary/5 transition-all flex items-center justify-center">
+            <Plus className="w-3.5 h-3.5" />
+          </button>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-1 custom-scrollbar pr-1 pb-1">
@@ -52,6 +77,13 @@ export function DiaCalendario({ day, activeDay, agendamentos, animationDelay }: 
           </div>
         )}
       </div>
+      
+      {/* Indicador visual quando mostrando cancelados */}
+      {mostrarCancelados && agendamentosCancelados.length > 0 && (
+        <div className="absolute bottom-1 right-1 text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold">
+          Mostrando cancelados
+        </div>
+      )}
     </motion.div>
   );
 }
