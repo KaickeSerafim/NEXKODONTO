@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rolepermissions.roles import assign_role
 from rolepermissions.checkers import get_user_roles
 from rolepermissions.permissions import available_perm_status
-from apps.usuarios.models import CustomUser
+from apps.usuarios.models import CustomUser, BloqueioAgenda
 
 # Serializer para criar usuário
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -61,3 +61,8 @@ class UpdateUserMeSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ["id","foto","first_name","last_name", "username", "email","cro", "pix", "banco", "agencia", "conta" ]
 
+class BloqueioAgendaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BloqueioAgenda
+        fields = ["id", "data", "hora_inicio", "hora_fim", "motivo"]
+        read_only_fields = ["id"]

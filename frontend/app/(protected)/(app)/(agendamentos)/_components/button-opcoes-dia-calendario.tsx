@@ -10,38 +10,90 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useDesmarcarAgendamentos } from "@/hooks/agendamento/useDesmarcarAgendamentos";
-import { DialogDesmarcarAgendamentos } from "./_opcoes-dia/_desmarcar/dialog-desmarcar-agendamentos";
-import { MenuItemDesmarcar, MenuItemVerCancelados } from "./_opcoes-dia/_desmarcar/menu-items";
-import { buildDesmarcarPayload } from "./_opcoes-dia/_desmarcar/desmarcar-utils";
-import { handleDesmarcarSuccess, handleDesmarcarError } from "./_opcoes-dia/_desmarcar/desmarcar-handlers";
+import { useBloquearDia, useDesbloquearDia } from "@/hooks/user/useBloqueio";
+import { 
+  DialogDesmarcarAgendamentos, 
+  MenuItemDesmarcar, 
+  MenuItemVerCancelados,
+  buildDesmarcarPayload,
+  handleDesmarcarSuccess,
+  handleDesmarcarError,
+  type DesmarcarAgendamentosResponse
+} from "./_opcoes-dia/_desmarcar";
+import { 
+  MenuItemTravarDia, 
+  DialogTravarDia,
+  handleBloqueioSuccess,
+  handleDesbloqueioSuccess,
+  handleBloqueioError
+} from "./_opcoes-dia/_travar-dia";
 
 interface ButtonOpcoesDiaCalendarioProps {
   agendamentoIds: number[];
+  data: string; // YYYY-MM-DD
+  isBloqueado: boolean;
   onSuccess?: () => void;
   onVerCancelados?: () => void;
 }
 
 export default function ButtonOpcoesDiaCalendario({
   agendamentoIds,
+  data,
+  isBloqueado,
   onSuccess,
   onVerCancelados,
 }: ButtonOpcoesDiaCalendarioProps) {
   const [openDesmarcar, setOpenDesmarcar] = useState(false);
-  const { mutate: desmarcarAgendamentos, isPending } = useDesmarcarAgendamentos();
+  const [openTravar, setOpenTravar] = useState(false);
+  
+  const { mutate: desmarcarAgendamentos, isPending: isPendingDesmarcar } = useDesmarcarAgendamentos();
+  const { mutate: bloquearDia, isPending: isPendingBloquear } = useBloquearDia();
+  const { mutate: desbloquearDia, isPending: isPendingDesbloquear } = useDesbloquearDia();
 
   const handleDesmarcar = () => {
     const payload = buildDesmarcarPayload(agendamentoIds);
 
     desmarcarAgendamentos(payload, {
-      onSuccess: (data) => {
+      onSuccess: (data: DesmarcarAgendamentosResponse) => {
         handleDesmarcarSuccess(data);
         setOpenDesmarcar(false);
         onSuccess?.();
       },
-      onError: (error) => {
+      onError: (error: any) => {
         handleDesmarcarError(error);
       },
     });
+  };
+
+  const handleToggleBloqueio = (dataBloqueio: { motivo: string, hora_inicio?: string, hora_fim?: string }) => {
+    if (isBloqueado) {
+      desbloquearDia(data, {
+        onSuccess: () => {
+          handleDesbloqueioSuccess();
+          setOpenTravar(false);
+          onSuccess?.();
+        },
+        onError: (error: any) => {
+          handleBloqueioError(error, "desbloquear");
+        }
+      });
+    } else {
+      bloquearDia({ 
+        data, 
+        motivo: dataBloqueio.motivo, 
+        hora_inicio: dataBloqueio.hora_inicio || null, 
+        hora_fim: dataBloqueio.hora_fim || null 
+      }, {
+        onSuccess: () => {
+          handleBloqueioSuccess(dataBloqueio.hora_inicio);
+          setOpenTravar(false);
+          onSuccess?.();
+        },
+        onError: (error: any) => {
+          handleBloqueioError(error, "bloquear");
+        }
+      });
+    }
   };
 
   return (
@@ -69,8 +121,14 @@ export default function ButtonOpcoesDiaCalendario({
             />
           )}
 
-                  <MenuItemVerCancelados onSelect={() => onVerCancelados?.()} />
-                  
+          <MenuItemVerCancelados onSelect={() => onVerCancelados?.()} />
+          
+          <DropdownMenuSeparator />
+          
+          <MenuItemTravarDia 
+            isBloqueado={isBloqueado} 
+            onSelect={() => setOpenTravar(true)} 
+          />
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -78,10 +136,21 @@ export default function ButtonOpcoesDiaCalendario({
         open={openDesmarcar}
         onOpenChange={setOpenDesmarcar}
         onConfirm={handleDesmarcar}
-        isPending={isPending}
+        isPending={isPendingDesmarcar}
         quantidadeAgendamentos={agendamentoIds.length}
+      />
+
+      <DialogTravarDia
+        open={openTravar}
+        onOpenChange={setOpenTravar}
+        onConfirm={handleToggleBloqueio}
+        isPending={isPendingBloquear || isPendingDesbloquear}
+        isBloqueado={isBloqueado}
+        temAgendamentos={agendamentoIds.length}
+        data={data}
       />
     </>
   );
 }
+
 

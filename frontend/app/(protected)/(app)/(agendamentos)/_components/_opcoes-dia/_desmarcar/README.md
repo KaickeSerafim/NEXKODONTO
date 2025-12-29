@@ -6,11 +6,23 @@ Este módulo contém todos os componentes e funções relacionadas às opções 
 
 ```
 _opcoes-dia/
-├── index.ts                          # Exportações centralizadas
-├── dialog-desmarcar-agendamentos.tsx # Dialog de confirmação
-├── menu-items.tsx                    # Itens do menu dropdown
-├── desmarcar-handlers.ts             # Handlers de sucesso/erro
-└── desmarcar-utils.ts                # Funções utilitárias
+├── _desmarcar/                         # Módulo de desmarcação
+│   ├── dialog-desmarcar-agendamentos.tsx
+│   ├── menu-items.tsx
+│   └── index.ts
+└── _travar-dia/                        # Módulo de bloqueio de agenda
+    ├── dialog-travar-dia.tsx
+    ├── menu-item-travar-dia.tsx
+    └── index.ts
+
+app/functions/                          # Lógica global
+├── desmarcar/
+│   ├── status-acoes/
+│   │   └── status-acoes.ts             # Handlers visuais
+│   └── desmarcar-utils.ts              # Utilitários de payload
+└── travar-dia/
+    └── status-acoes/
+        └── status-acoes.ts             # Handlers de bloqueio
 ```
 
 ## Componentes

@@ -11,7 +11,7 @@ import {
 import { CalendarioHeader } from "./calendario-header";
 import { DiaCalendario } from "./dia-calendario";
 import { Agendamento } from "@/app/schemas/agendamento/agendamento";
-
+import { useBloqueios } from "@/hooks/user/useBloqueio";
 
 interface CalendarioAgendamentoProps {
   agendamentos: Agendamento[];
@@ -19,6 +19,7 @@ interface CalendarioAgendamentoProps {
 
 export default function CalendarioAgendamento({ agendamentos }: CalendarioAgendamentoProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const { data: bloqueios } = useBloqueios();
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -37,6 +38,11 @@ export default function CalendarioAgendamento({ agendamentos }: CalendarioAgenda
       const localDateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
       return localDateStr === dateStr;
     });
+  };
+
+  const getBloqueiosForDay = (day: number) => {
+    const dateStr = formatDateToYYYYMMDD(year, month, day);
+    return bloqueios?.filter(b => b.data === dateStr) || [];
   };
 
   const checkIsToday = (day: number) => {
@@ -74,6 +80,8 @@ export default function CalendarioAgendamento({ agendamentos }: CalendarioAgenda
           const day = i + 1;
           const dayAgendamentos = getAgendamentosForDay(day);
           const activeDay = checkIsToday(day);
+          const dayBloqueios = getBloqueiosForDay(day);
+          const dateStr = formatDateToYYYYMMDD(year, month, day);
 
           return (
             <DiaCalendario 
@@ -81,6 +89,8 @@ export default function CalendarioAgendamento({ agendamentos }: CalendarioAgenda
               day={day}
               activeDay={activeDay}
               agendamentos={dayAgendamentos}
+              bloqueios={dayBloqueios}
+              data={dateStr}
               animationDelay={i * 0.005}
             />
           );
@@ -91,8 +101,6 @@ export default function CalendarioAgendamento({ agendamentos }: CalendarioAgenda
           <div key={`empty-end-${i}`} className="min-h-[160px] border-b border-r border-gray-50/50 bg-gray-50/10" />
         ))}
       </div>
-      
-
     </div>
   );
 }

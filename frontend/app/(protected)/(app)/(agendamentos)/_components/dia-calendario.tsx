@@ -2,22 +2,28 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Stethoscope } from "lucide-react";
+import { Plus, MoreVertical, Lock, Stethoscope } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/utils";
 import { AppointmentItem } from "./appointment-item";
 import { Agendamento } from "@/app/schemas/agendamento/agendamento";
+import { Bloqueio } from "@/app/schemas/bloqueio/bloqueio";
 import ButtonOpcoesDiaCalendario from "./button-opcoes-dia-calendario";
 
 interface DiaCalendarioProps {
   day: number;
   activeDay: boolean;
   agendamentos: Agendamento[];
+  bloqueios: Bloqueio[];
+  data: string;
   animationDelay: number;
 }
 
-export function DiaCalendario({ day, activeDay, agendamentos, animationDelay }: DiaCalendarioProps) {
+export function DiaCalendario({ day, activeDay, agendamentos, bloqueios, data, animationDelay }: DiaCalendarioProps) {
   const [mostrarCancelados, setMostrarCancelados] = useState(false);
+  
+  const isBloqueado = bloqueios.length > 0;
+  const isBloqueioTotal = bloqueios.some(b => !b.hora_inicio && !b.hora_fim);
   
   // Filtra agendamentos cancelados (status === 'cancelada')
   const agendamentosAtivos = agendamentos.filter(ag => ag.status !== 'cancelada');
@@ -38,7 +44,8 @@ export function DiaCalendario({ day, activeDay, agendamentos, animationDelay }: 
       transition={{ delay: animationDelay }}
       className={cn(
         "h-[180px] border border-slate-800 p-2 group transition-all relative overflow-hidden flex flex-col",
-        activeDay ? "bg-primary/[0.02]" : "hover:bg-gray-50/50"
+        activeDay ? "bg-primary/[0.02]" : "hover:bg-gray-50/50",
+        isBloqueado && "bg-red-50/30"
       )}
     >
       <div className="flex justify-between items-center mb-1.5 px-1">
@@ -52,26 +59,68 @@ export function DiaCalendario({ day, activeDay, agendamentos, animationDelay }: 
         {agendamentosAtivos.length > 0 ? (
           <ButtonOpcoesDiaCalendario 
             agendamentoIds={agendamentosAtivos.map(ag => ag.id)}
+            data={data}
+            isBloqueado={isBloqueado}
             onVerCancelados={handleToggleCancelados}
           />
         ) : agendamentosCancelados.length > 0 ? (
           <ButtonOpcoesDiaCalendario 
             agendamentoIds={[]}
+            data={data}
+            isBloqueado={isBloqueado}
             onVerCancelados={handleToggleCancelados}
           />
         ) : (
-          <button className="h-6 w-6 opacity-0 group-hover:opacity-100 rounded-md text-gray-400 hover:text-primary hover:bg-primary/5 transition-all flex items-center justify-center">
-            <Plus className="w-3.5 h-3.5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <ButtonOpcoesDiaCalendario 
+              agendamentoIds={[]}
+              data={data}
+              isBloqueado={isBloqueado}
+            />
+            {!isBloqueioTotal && (
+              <button className="h-6 w-6 opacity-0 group-hover:opacity-100 rounded-md text-gray-400 hover:text-primary hover:bg-primary/5 transition-all flex items-center justify-center">
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         )}
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-1 custom-scrollbar pr-1 pb-1">
+        {/* Bloqueio Total Overlay */}
+        {isBloqueioTotal && agendamentosAtivos.length === 0 && (
+          <div className="h-full flex flex-col items-center justify-center opacity-40 pointer-events-none">
+            <Lock className="w-5 h-5 text-red-400 mb-1" />
+            <span className="text-[10px] text-red-500 font-bold uppercase tracking-tighter">Bloqueado</span>
+          </div>
+        )}
+
+        {/* Bloqueios Parciais (Renderizados como itens) */}
+        {!isBloqueioTotal && bloqueios.map((bloqueio) => (
+          <div 
+            key={bloqueio.id} 
+            className="flex items-center gap-2 p-1.5 bg-red-50/50 border border-red-100 rounded-lg group/item transition-all hover:bg-red-100/50"
+            title={bloqueio.motivo || "Horário Bloqueado"}
+          >
+            <Lock className="w-3 h-3 text-red-500 shrink-0" />
+            <div className="flex flex-col min-w-0">
+              <span className="text-[10px] font-black text-red-700 leading-none">
+                {bloqueio.hora_inicio?.substring(0, 5)} - {bloqueio.hora_fim?.substring(0, 5)}
+              </span>
+              {bloqueio.motivo && (
+                <span className="text-[9px] text-red-500 font-medium truncate mt-0.5 opacity-80">
+                  {bloqueio.motivo}
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
+
         {sortedAgendamentos.length > 0 ? (
           sortedAgendamentos.map((ag) => (
             <AppointmentItem key={ag.id} agendamento={ag} />
           ))
-        ) : (
+        ) : !isBloqueado && (
           <div className="h-full flex items-center justify-center opacity-0 group-hover:opacity-10 transition-opacity pointer-events-none">
             <Stethoscope className="w-6 h-6 text-gray-300" />
           </div>
