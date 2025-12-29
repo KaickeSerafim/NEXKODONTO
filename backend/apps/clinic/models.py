@@ -45,6 +45,7 @@ class Agendamento(models.Model):
     dentista = models.ForeignKey(USER, on_delete=models.CASCADE, related_name='consultas')
     criado_por = models.ForeignKey(USER, on_delete=models.SET_NULL, null=True, blank=True, related_name='consultas_criadas')
     data_hora = models.DateTimeField()
+    active = models.BooleanField(default=True)
     data_hora_fim = models.DateTimeField(editable=False, null=True, blank=True)
     motivo = models.CharField(max_length=255, null=True, blank=True)
     status = models.CharField(max_length=20, choices=StatusAgendamento.choices, default='agendada')
@@ -69,6 +70,7 @@ class Agendamento(models.Model):
 
 class Atendimentos(models.Model):
     agendamento = models.OneToOneField(Agendamento, on_delete=models.CASCADE, related_name='atendimento')
+    status = models.CharField(max_length=20, choices=StatusAgendamento.choices, default='agendada')
     diagnostico = models.TextField()
     tratamento_realizado = models.TextField()
     proximo_passos = models.TextField(null=True, blank=True)

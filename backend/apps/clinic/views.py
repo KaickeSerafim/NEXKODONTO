@@ -4,6 +4,7 @@ from rest_framework import status
 from .models import Paciente, Agendamento, HistoricoMedico, PlanoTratamento, Atendimentos
 from .serializers import (PacienteSerializer, AgendamentoSerializer, HistoricoMedicoSerializer,
                           PlanoTratamentoSerializer, AtendimentoSerializer, FichaPacienteSerializer)
+from .serializer.desmarcar_agendamento_serializers import DesmarcarAgendamentoSerializer
 from apps.utils.response_builder import ResponseBuilder
 from .filters import AgendamentoFilter
 from django.utils import timezone
@@ -202,3 +203,42 @@ class FichaPacienteView(APIView):
             return ResponseBuilder().success("Ficha do paciente encontrada").with_data(serializer.data).to_response()
         except Paciente.DoesNotExist:
             return ResponseBuilder().error("Paciente não encontrado").with_status(status.HTTP_404_NOT_FOUND).to_response()
+
+class DesmarcarAgendamentoView(APIView):
+    """
+    View para desmarcar um ou múltiplos agendamentos.
+    Recebe o ID do agendamento ou uma lista de IDs via POST e processa a desmarcação.
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request):
+        serializer = DesmarcarAgendamentoSerializer(data=request.data)
+        
+        if not serializer.is_valid():
+            return ResponseBuilder().error("Dados inválidos").with_errors(serializer.errors).to_response()
+        
+        # Processa a desmarcação
+        try:
+            resultado = serializer.save(usuario=request.user, dentista=request.user)
+            
+            # Verifica se houve algum sucesso
+            if resultado['total_processados'] == 0:
+                # Todos falharam
+                return ResponseBuilder().error(
+                    "Nenhum agendamento foi desmarcado"
+                ).with_data(resultado).with_status(status.HTTP_400_BAD_REQUEST).to_response()
+            
+            # Verifica se houve algum erro
+            if resultado['total_erros'] > 0:
+                # Sucesso parcial
+                mensagem = f"{resultado['total_processados']} agendamento(s) desmarcado(s) com sucesso. {resultado['total_erros']} erro(s) encontrado(s)."
+                return ResponseBuilder().success(mensagem).with_data(resultado).to_response()
+            
+            # Todos foram processados com sucesso
+            mensagem = f"{resultado['total_processados']} agendamento(s) desmarcado(s) com sucesso"
+            return ResponseBuilder().success(mensagem).with_data(resultado).to_response()
+        
+        except Exception as e:
+            return ResponseBuilder().error(
+                f"Erro ao desmarcar agendamento(s): {str(e)}"
+            ).with_status(status.HTTP_500_INTERNAL_SERVER_ERROR).to_response()

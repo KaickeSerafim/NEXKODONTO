@@ -68,3 +68,5 @@ class BloqueioAgenda(models.Model):
 
     def __str__(self):
         return f"Bloqueio {self.dentista.username} - {self.data}"
+
+
