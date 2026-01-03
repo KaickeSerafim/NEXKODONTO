@@ -14,7 +14,7 @@ export const getStatusConfig = (status: string) => {
     case "concluida":
       return {
         label: "Concluída",
-        className: "bg-emerald-100 text-emerald-700 border-emerald-800",
+        className: "bg-blue-100 text-blue-700 border-blue-800",
       };
     case "cancelada":
     case "faltou":
