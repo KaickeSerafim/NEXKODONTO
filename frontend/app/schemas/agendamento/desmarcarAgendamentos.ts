@@ -4,10 +4,12 @@ import { z } from "zod";
 const desmarcarResultadoSchema = z.object({
   agendamento_id: z.number(),
   status: z.string(),
-  active: z.boolean(),
-  motivo: z.string(),
-  atendimento_id: z.number(),
-  atendimento_criado: z.boolean(),
+  active: z.boolean().optional(),
+  motivo: z.string().optional(),
+  atendimento_id: z.number().optional(),
+  atendimento_criado: z.boolean().optional(),
+  reagendado: z.boolean().optional(),
+  mensagem: z.string().optional(),
 });
 
 // Schema para um erro individual

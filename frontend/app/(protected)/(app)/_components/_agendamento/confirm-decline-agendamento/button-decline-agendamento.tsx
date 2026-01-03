@@ -27,10 +27,10 @@ export function ButtonDeclineAgendamento({
 
     const handleConfirm = () => {
         updateAgendamento(
-            { id: agendamentoId, data: { status: "faltou" } },
+            { id: agendamentoId, data: { status: "cancelada" } },
             {
                 onSuccess: () => {
-                    toast.warning("Consulta marcada como não realizada (Falta).");
+                    toast.warning("Agendamento marcado como cancelado.");
                     setOpen(false);
                 },
                 onError: (error) => {

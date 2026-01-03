@@ -1,19 +1,15 @@
 import {
   AgendamentoDetailResponse,
   agendamentoDetailResponseSchema,
+  AgendamentoUpdate,
 } from "@/app/schemas/agendamento/agendamento";
 import { api } from "../axios";
 
-interface UpdateAgendamentoData {
-  data_hora?: string;
-  motivo?: string;
-  status?: string;
-  observacoes?: string;
-}
 
 export async function UpdateAgendamento(
   id: number,
-  data: UpdateAgendamentoData
+  data: AgendamentoUpdate
+  
 ): Promise<AgendamentoDetailResponse> {
   try {
     const response = await api.put(`agendamentos/${id}/`, data);

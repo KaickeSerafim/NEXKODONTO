@@ -29,7 +29,7 @@ export function AppointmentItem({ agendamento }: AppointmentItemProps) {
     agendamento.status as any,
     agendamento.pagamento?.[0]?.status as any
   );
-  const statusConfig = getStatusConfig(agendamento.status);
+  const statusConfig = getStatusConfig(agendamento.status || "");
   const pagamentoConfig = getStatusPagamentoConfig(agendamento.pagamento?.[0]?.status || "");
 
   return (
@@ -44,10 +44,10 @@ export function AppointmentItem({ agendamento }: AppointmentItemProps) {
         >
           {/* Hora */}
           <span className="font-bold whitespace-nowrap opacity-80 border-r border-current/20 pr-1.5">
-            {new Date(agendamento.data_hora).toLocaleTimeString("pt-BR", {
+            {agendamento.data_hora ? new Date(agendamento.data_hora).toLocaleTimeString("pt-BR", {
               hour: "2-digit",
               minute: "2-digit",
-            })}
+            }) : "--:--"}
           </span>
 
           {/* Nome */}

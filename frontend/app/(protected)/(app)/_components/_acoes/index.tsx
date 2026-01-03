@@ -61,8 +61,8 @@ export default function Actions({
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem  className="" onClick={() => setPagamentoOpen(true)}><Receipt />Ver informações de pagamento</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setDeleteOpen(true)}> <Trash2 />Cancelar agendamento</DropdownMenuItem>
+          {agendamento.status === "cancelado" ? <DropdownMenuSeparator /> : null}
+          {agendamento.status === "cancelado" ? <DropdownMenuItem onClick={() => setDeleteOpen(true)}> <Trash2 />Cancelar agendamento</DropdownMenuItem> : null}
         </DropdownMenuContent>
       </DropdownMenu>
 

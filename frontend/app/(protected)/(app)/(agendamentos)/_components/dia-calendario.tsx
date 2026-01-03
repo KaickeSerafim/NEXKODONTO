@@ -29,9 +29,13 @@ export function DiaCalendario({ day, activeDay, agendamentos, bloqueios, data, a
   const agendamentosAtivos = agendamentos.filter(ag => ag.status !== 'cancelada');
   const agendamentosCancelados = agendamentos.filter(ag => ag.status === 'cancelada');
   
-  // Define quais agendamentos mostrar baseado no estado
+
   const agendamentosVisiveis = mostrarCancelados ? agendamentos : agendamentosAtivos;
-  const sortedAgendamentos = [...agendamentosVisiveis].sort((a, b) => a.data_hora.localeCompare(b.data_hora));
+  const sortedAgendamentos = [...agendamentosVisiveis].sort((a, b) => {
+    const dateA = a.data_hora || "";
+    const dateB = b.data_hora || "";
+    return dateA.localeCompare(dateB);
+  });
 
   const handleToggleCancelados = () => {
     setMostrarCancelados(!mostrarCancelados);
@@ -45,7 +49,7 @@ export function DiaCalendario({ day, activeDay, agendamentos, bloqueios, data, a
       className={cn(
         "h-[180px] border border-slate-800 p-2 group transition-all relative overflow-hidden flex flex-col",
         activeDay ? "bg-primary/[0.02]" : "hover:bg-gray-50/50",
-        isBloqueado && "bg-red-50/30"
+        isBloqueado && "bg-red-50/30 border-yellow-500"
       )}
     >
       <div className="flex justify-between items-center mb-1.5 px-1">
@@ -58,14 +62,14 @@ export function DiaCalendario({ day, activeDay, agendamentos, bloqueios, data, a
         
         {agendamentosAtivos.length > 0 ? (
           <ButtonOpcoesDiaCalendario 
-            agendamentoIds={agendamentosAtivos.map(ag => ag.id)}
+            agendamentos={agendamentosAtivos}
             data={data}
             isBloqueado={isBloqueado}
             onVerCancelados={handleToggleCancelados}
           />
         ) : agendamentosCancelados.length > 0 ? (
           <ButtonOpcoesDiaCalendario 
-            agendamentoIds={[]}
+            agendamentos={[]}
             data={data}
             isBloqueado={isBloqueado}
             onVerCancelados={handleToggleCancelados}
@@ -73,15 +77,11 @@ export function DiaCalendario({ day, activeDay, agendamentos, bloqueios, data, a
         ) : (
           <div className="flex items-center gap-1">
             <ButtonOpcoesDiaCalendario 
-              agendamentoIds={[]}
+              agendamentos={[]}
               data={data}
               isBloqueado={isBloqueado}
             />
-            {!isBloqueioTotal && (
-              <button className="h-6 w-6 opacity-0 group-hover:opacity-100 rounded-md text-gray-400 hover:text-primary hover:bg-primary/5 transition-all flex items-center justify-center">
-                <Plus className="w-3.5 h-3.5" />
-              </button>
-            )}
+
           </div>
         )}
       </div>

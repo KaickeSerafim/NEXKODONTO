@@ -6,6 +6,8 @@ class StatusAgendamento(models.TextChoices):
     PENDENTE = 'pendente', 'Pendente'
     CONFIRMADA = 'confirmada', 'Confirmada'
     CANCELADA = 'cancelada', 'Cancelada'
+    CONCLUIDA = 'concluida', 'Concluída'
+    FALTOU = 'faltou', 'Faltou'
 
 class PrioridadeTratamento(models.TextChoices):
     BAIXA = 'baixa', 'Baixa',

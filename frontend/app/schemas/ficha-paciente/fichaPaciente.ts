@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { HistoricoMedicoSchema } from "./historicoMedico";
+import { AtendimentoSchema } from "./atendimento";
 import { PlanoTratamentoSchema } from "./planoTratamento";
 import { agendamentoSchema } from "../agendamento/agendamento";
 
@@ -18,6 +19,7 @@ export const FichaPacienteSchema = z.object({
   historico_medico: HistoricoMedicoSchema.nullable().optional(),
   planos_tratamento: z.array(PlanoTratamentoSchema).optional().default([]),
   consultas: z.array(agendamentoSchema).optional().default([]),
+  atendimentos_historico: z.array(AtendimentoSchema).optional().default([]),
 });
 
 export type FichaPaciente = z.infer<typeof FichaPacienteSchema>;

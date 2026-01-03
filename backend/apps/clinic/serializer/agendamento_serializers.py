@@ -44,8 +44,8 @@ class AgendamentoSerializer(serializers.ModelSerializer):
     criado_por_detail = CriadoPorSerializer(source='criado_por', read_only=True)
     updated_by_detail = AtualizadoPorSerializer(source='updated_by', read_only=True)
     pagamento = PagamentoSerializer(source='pagamentos', many=True, read_only=True)
-    paciente_id = serializers.IntegerField(write_only=True)
-    procedimento_id = serializers.IntegerField(write_only=True)
+    paciente_id = serializers.IntegerField(write_only=True, required=False)
+    procedimento_id = serializers.IntegerField(write_only=True, required=False)
     
     class Meta:
         model = Agendamento
@@ -63,4 +63,6 @@ class AgendamentoSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         if 'paciente_id' in validated_data:
             instance.paciente_id = validated_data.pop('paciente_id')
+        if 'procedimento_id' in validated_data:
+            instance.procedimento_id = validated_data.pop('procedimento_id')
         return super().update(instance, validated_data)

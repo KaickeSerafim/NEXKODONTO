@@ -10,8 +10,8 @@ import {
     DialogDescription,
     DialogFooter
 } from "@/components/ui/dialog";
-import { useDeleteAgendamento } from "@/hooks/agendamento/useDeleteAgendamento";
-import { toast } from "sonner"; // Assumindo que usa sonner ou similar
+import { useDesmarcarAgendamentos } from "@/hooks/agendamento/useDesmarcarAgendamentos";
+import { handleDesmarcarSuccess, handleDesmarcarError } from "../../../(agendamentos)/_components/_opcoes-dia/_desmarcar";
 
 export default function DeleteAgendamento({ 
     open,
@@ -22,19 +22,18 @@ export default function DeleteAgendamento({
     onOpenChange: (open: boolean) => void;
     agendamentoId: number | string;
 }) {
-    const { mutate: deleteAgendamento, isPending } = useDeleteAgendamento();
+    const { mutate: desmarcarAgendamento, isPending } = useDesmarcarAgendamentos();
 
     const handleDelete = () => {
-        deleteAgendamento(
-            { agendamentoId: Number(agendamentoId) },
+        desmarcarAgendamento(
+            { agendamento_id: Number(agendamentoId) },
             {
-                onSuccess: () => {
-                    toast.success("Agendamento cancelado com sucesso!. Mensagem enviada para o paciente para remarcar.");
+                onSuccess: (data) => {
+                    handleDesmarcarSuccess(data);
                     onOpenChange(false);
                 },
-                onError: (error) => {
-                    toast.error("Erro ao cancelar agendamento.");
-                    console.error(error);
+                onError: (error: any) => {
+                    handleDesmarcarError(error);
                 }
             }
         );

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, XCircle } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,9 +27,10 @@ import {
   handleDesbloqueioSuccess,
   handleBloqueioError
 } from "./_opcoes-dia/_travar-dia";
+import { Agendamento } from "@/app/schemas/agendamento/agendamento";
 
 interface ButtonOpcoesDiaCalendarioProps {
-  agendamentoIds: number[];
+  agendamentos: Agendamento[];
   data: string; // YYYY-MM-DD
   isBloqueado: boolean;
   onSuccess?: () => void;
@@ -37,7 +38,7 @@ interface ButtonOpcoesDiaCalendarioProps {
 }
 
 export default function ButtonOpcoesDiaCalendario({
-  agendamentoIds,
+  agendamentos,
   data,
   isBloqueado,
   onSuccess,
@@ -50,8 +51,9 @@ export default function ButtonOpcoesDiaCalendario({
   const { mutate: bloquearDia, isPending: isPendingBloquear } = useBloquearDia();
   const { mutate: desbloquearDia, isPending: isPendingDesbloquear } = useDesbloquearDia();
 
-  const handleDesmarcar = () => {
-    const payload = buildDesmarcarPayload(agendamentoIds);
+  const handleDesmarcar = (idsParaDesmarcar?: number[]) => {
+    const ids = idsParaDesmarcar || agendamentos.map(ag => ag.id);
+    const payload = buildDesmarcarPayload(ids);
 
     desmarcarAgendamentos(payload, {
       onSuccess: (data: DesmarcarAgendamentosResponse) => {
@@ -97,12 +99,22 @@ export default function ButtonOpcoesDiaCalendario({
   };
 
   return (
-    <>
+    <div className="flex items-center gap-1">
+      {agendamentos.length > 0 && (
+        <button
+          onClick={() => setOpenDesmarcar(true)}
+          className="h-6 w-6 opacity-0 group-hover:opacity-100 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all flex items-center justify-center"
+          title="Desmarcar agendamentos"
+        >
+          <XCircle className="w-3.5 h-3.5" />
+        </button>
+      )}
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
             className="h-6 w-6 opacity-0 group-hover:opacity-100 rounded-md text-gray-400 hover:text-primary hover:bg-primary/5 transition-all flex items-center justify-center"
-            title="Opções do dia"
+            title="Mais opções do dia"
           >
             <MoreVertical className="w-3.5 h-3.5" />
           </button>
@@ -114,10 +126,10 @@ export default function ButtonOpcoesDiaCalendario({
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
 
-          {agendamentoIds.length > 0 && (
+          {agendamentos.length > 0 && (
             <MenuItemDesmarcar
               onSelect={() => setOpenDesmarcar(true)}
-              quantidadeAgendamentos={agendamentoIds.length}
+              quantidadeAgendamentos={agendamentos.length}
             />
           )}
 
@@ -137,7 +149,7 @@ export default function ButtonOpcoesDiaCalendario({
         onOpenChange={setOpenDesmarcar}
         onConfirm={handleDesmarcar}
         isPending={isPendingDesmarcar}
-        quantidadeAgendamentos={agendamentoIds.length}
+        agendamentos={agendamentos}
       />
 
       <DialogTravarDia
@@ -146,10 +158,10 @@ export default function ButtonOpcoesDiaCalendario({
         onConfirm={handleToggleBloqueio}
         isPending={isPendingBloquear || isPendingDesbloquear}
         isBloqueado={isBloqueado}
-        temAgendamentos={agendamentoIds.length}
+        temAgendamentos={agendamentos.length}
         data={data}
       />
-    </>
+    </div>
   );
 }
 

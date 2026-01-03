@@ -15,7 +15,7 @@ export default function AgendamentosPage() {
   const stats = [
     { label: "Total", value: apiResponse?.data?.length || 0, icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
     { label: "Confirmados", value: apiResponse?.data?.filter(a => a.status === "confirmada").length || 0, icon: CheckCircle2, color: "text-green-600", bg: "bg-green-50" },
-    { label: "Pendentes", value: apiResponse?.data?.filter(a => ["agendada", "pendente"].includes(a.status)).length || 0, icon: ClockIcon, color: "text-amber-600", bg: "bg-amber-50" },
+    { label: "Pendentes", value: apiResponse?.data?.filter(a => a.status && ["agendada", "pendente"].includes(a.status)).length || 0, icon: ClockIcon, color: "text-amber-600", bg: "bg-amber-50" },
   ];
 
   if (isError) {

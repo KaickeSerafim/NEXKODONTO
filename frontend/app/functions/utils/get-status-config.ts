@@ -11,9 +11,15 @@ export const getStatusConfig = (status: string) => {
         label: "Pendente",
         className: "bg-yellow-100 text-yellow-700 border-yellow-800",
       };
-    case "cancelada":
+    case "concluida":
       return {
-        label: "Cancelada",
+        label: "Concluída",
+        className: "bg-emerald-100 text-emerald-700 border-emerald-800",
+      };
+    case "cancelada":
+    case "faltou":
+      return {
+        label: status === "cancelada" ? "Cancelada" : "Faltou",
         className: "bg-red-100 text-red-700 border-red-800",
       };
     default:

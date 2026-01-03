@@ -27,14 +27,16 @@ export function ButtonConfirmAgendamento({
 
     const handleConfirm = () => {
         updateAgendamento(
-            { id: agendamentoId, data: { status: "concluida" } },
+            { id: agendamentoId, data: {
+                status: "concluida",
+            } },
             {
                 onSuccess: () => {
-                    toast.success("Consulta concluída com sucesso!");
+                    toast.success("Agendamento concluído com sucesso!");
                     setOpen(false);
                 },
                 onError: (error) => {
-                    toast.error("Erro ao marcar consulta como concluída.");
+                    toast.error("Erro ao marcar agendamento como concluído.");
                     console.error(error);
                 }
             }

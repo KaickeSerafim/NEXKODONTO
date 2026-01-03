@@ -55,11 +55,11 @@ export const agendamentoSchema = z.object({
   criado_por_detail: criadoPorDetailSchema.nullable(),
   updated_by_detail: alteradoPorDetailSchema,
   pagamento: z.array(pagamentoSchema).optional().default([]),
-  data_hora: z.string(),
+  data_hora: z.string().optional(),
   data_hora_fim: z.string().nullable().optional(),
-  motivo: z.string().nullable(),
-  status: z.string(),
-  observacoes: z.string().nullable(),
+  motivo: z.string().nullable().optional(),
+  status: z.string().optional(),
+  observacoes: z.string().nullable().optional(),
   criado_em: z.string(),
   atualizado_em: z.string(),
 });
@@ -71,7 +71,20 @@ export const agendamentoResponseSchema = apiResponseSchema.extend({
 export const agendamentoDetailResponseSchema = apiResponseSchema.extend({
   data: agendamentoSchema,
 });
+export const agendamentoUpdateSchema = agendamentoSchema.omit({
+  id: true,
+  paciente_detail: true,
+  procedimento_detail: true,
+  dentista_detail: true,
+  criado_por_detail: true,
+  updated_by_detail: true,
+  pagamento: true,
+  criado_em: true,
+  atualizado_em: true,
+});
 
 export type Agendamento = z.infer<typeof agendamentoSchema>;
 export type AgendamentoResponse = z.infer<typeof agendamentoResponseSchema>;
 export type AgendamentoDetailResponse = z.infer<typeof agendamentoDetailResponseSchema>;
+
+export type AgendamentoUpdate = z.infer<typeof agendamentoUpdateSchema>;

@@ -190,6 +190,7 @@ export default function FichaPaciente({
           <Atendimentos 
             pacienteId={pacienteId}
             consultas={ficha?.data.consultas}
+            atendimentos={ficha?.data.atendimentos_historico}
           />
         </TabsContent>
 
