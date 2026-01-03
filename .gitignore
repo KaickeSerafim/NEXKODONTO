@@ -1,0 +1,11 @@
+# Root gitignore
+node_modules/
+.next/
+backend/.venv/
+backend/db.sqlite3
+backend/docs/
+backend/__pycache__/
+backend/*.py[cod]
+backend/.env
+frontend/.env
+.DS_Store

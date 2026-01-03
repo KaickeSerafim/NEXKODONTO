@@ -12,6 +12,7 @@ import { CalendarioHeader } from "./calendario-header";
 import { DiaCalendario } from "./dia-calendario";
 import { Agendamento } from "@/app/schemas/agendamento/agendamento";
 import { useBloqueios } from "@/hooks/user/useBloqueio";
+import { getAgendamentosForDay, getBloqueiosForDay } from "@/app/functions/agendamentos/get-data-for-day";
 
 interface CalendarioAgendamentoProps {
   agendamentos: Agendamento[];
@@ -30,20 +31,6 @@ export default function CalendarioAgendamento({ agendamentos }: CalendarioAgenda
   const prevMonth = () => setCurrentDate(new Date(year, month - 1, 1));
   const nextMonth = () => setCurrentDate(new Date(year, month + 1, 1));
   const setToday = () => setCurrentDate(new Date());
-
-  const getAgendamentosForDay = (day: number) => {
-    const dateStr = formatDateToYYYYMMDD(year, month, day);
-    return agendamentos.filter((a) => {
-      const dateObj = new Date(a.data_hora);
-      const localDateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
-      return localDateStr === dateStr;
-    });
-  };
-
-  const getBloqueiosForDay = (day: number) => {
-    const dateStr = formatDateToYYYYMMDD(year, month, day);
-    return bloqueios?.filter(b => b.data === dateStr) || [];
-  };
 
   const checkIsToday = (day: number) => {
     return isSameDay(day, month, year, new Date());
@@ -78,9 +65,9 @@ export default function CalendarioAgendamento({ agendamentos }: CalendarioAgenda
         {/* Dias Ativos */}
         {Array.from({ length: daysInMonth }).map((_, i) => {
           const day = i + 1;
-          const dayAgendamentos = getAgendamentosForDay(day);
+          const dayAgendamentos = getAgendamentosForDay(agendamentos, year, month, day);
           const activeDay = checkIsToday(day);
-          const dayBloqueios = getBloqueiosForDay(day);
+          const dayBloqueios = getBloqueiosForDay(bloqueios || [], year, month, day);
           const dateStr = formatDateToYYYYMMDD(year, month, day);
 
           return (

@@ -9,6 +9,11 @@ import { AppointmentItem } from "./appointment-item";
 import { Agendamento } from "@/app/schemas/agendamento/agendamento";
 import { Bloqueio } from "@/app/schemas/bloqueio/bloqueio";
 import ButtonOpcoesDiaCalendario from "./button-opcoes-dia-calendario";
+import { 
+  getAgendamentosAtivos, 
+  getAgendamentosCancelados, 
+  sortAgendamentosByTime 
+} from "@/app/functions/agendamentos/filter-agendamentos";
 
 interface DiaCalendarioProps {
   day: number;
@@ -25,17 +30,12 @@ export function DiaCalendario({ day, activeDay, agendamentos, bloqueios, data, a
   const isBloqueado = bloqueios.length > 0;
   const isBloqueioTotal = bloqueios.some(b => !b.hora_inicio && !b.hora_fim);
   
-  // Filtra agendamentos cancelados (status === 'cancelada')
-  const agendamentosAtivos = agendamentos.filter(ag => ag.status !== 'cancelada');
-  const agendamentosCancelados = agendamentos.filter(ag => ag.status === 'cancelada');
+  // Filtra agendamentos usando as funções centralizadas
+  const agendamentosAtivos = getAgendamentosAtivos(agendamentos);
+  const agendamentosCancelados = getAgendamentosCancelados(agendamentos);
   
-
   const agendamentosVisiveis = mostrarCancelados ? agendamentos : agendamentosAtivos;
-  const sortedAgendamentos = [...agendamentosVisiveis].sort((a, b) => {
-    const dateA = a.data_hora || "";
-    const dateB = b.data_hora || "";
-    return dateA.localeCompare(dateB);
-  });
+  const sortedAgendamentos = sortAgendamentosByTime(agendamentosVisiveis);
 
   const handleToggleCancelados = () => {
     setMostrarCancelados(!mostrarCancelados);
