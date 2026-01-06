@@ -12,19 +12,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Actions from "../../_components/_acoes";
 import { Agendamento } from "@/app/schemas/agendamento/agendamento";
 import { getAgendamentoColors } from "@/app/functions/utils/get-agendamento-colors";
 import { getStatusConfig } from "@/app/functions/utils/get-status-config";
 import { getStatusPagamentoConfig } from "@/app/functions/utils/get-status-pagamento-config";
 import { ButtonConfirmAgendamento } from "../../_components/_agendamento/confirm-decline-agendamento/button-confirm-agendamento";
 import { ButtonDeclineAgendamento } from "../../_components/_agendamento/confirm-decline-agendamento/button-decline-agendamento";
+import { useAgendamentoDetail } from "@/hooks/agendamento/useAgendamentoDetail";
 
+
+import Actions from "../../_components/_acoes";
 
 interface AppointmentItemProps {
   agendamento: Agendamento;
 }
 export function AppointmentItem({ agendamento }: AppointmentItemProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  // Busca detalhes apenas se o dropdown estiver aberto (Lazy Loading para Ações)
+  const { data: detailResponse } = useAgendamentoDetail(agendamento.id, isOpen);
+  const fullAgendamento = detailResponse?.data || agendamento;
+
   const { statusColor, paymentStyles } = getAgendamentoColors(
     agendamento.status as any,
     agendamento.pagamento?.[0]?.status as any
@@ -33,7 +41,7 @@ export function AppointmentItem({ agendamento }: AppointmentItemProps) {
   const pagamentoConfig = getStatusPagamentoConfig(agendamento.pagamento?.[0]?.status || "");
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <motion.div
           whileHover={{ y: -1, scale: 1.01 }}
@@ -98,7 +106,7 @@ export function AppointmentItem({ agendamento }: AppointmentItemProps) {
 
         <DropdownMenuSeparator />
         <div className="flex justify-center p-3 w-full">
-          <Actions agendamento={agendamento} />
+          <Actions agendamento={fullAgendamento} />
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -1,23 +1,9 @@
-import {
-    AgendamentoDetailResponse,
-  agendamentoDetailResponseSchema,
-
-} from "@/app/schemas/agendamento/agendamento";
+import { AgendamentoDetailResponse, agendamentoDetailResponseSchema } from "@/app/schemas/agendamento/agendamento";
 import { api } from "../axios";
 
-interface AgendamentoIdParams {
-id: string;
-}
-
-export async function AgendamentoDetail(AgendamentoIdParams : AgendamentoIdParams ): Promise<AgendamentoDetailResponse> {
+export async function getAgendamentoDetail(id: number): Promise<AgendamentoDetailResponse> {
   try {
-   
-
-    const url = `agendamentos/${AgendamentoIdParams.id}`;
-      
-
-    const response = await api.get(url);
-
+    const response = await api.get(`agendamentos/${id}/`);
     const validatedResponse = agendamentoDetailResponseSchema.parse(response.data);
 
     if (validatedResponse.status === "error") {
@@ -29,6 +15,6 @@ export async function AgendamentoDetail(AgendamentoIdParams : AgendamentoIdParam
     if (error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
-    throw new Error(error.message || "Erro ao fazer busca de agendamentos");
+    throw new Error(error.message || "Erro ao buscar detalhes do agendamento");
   }
 }

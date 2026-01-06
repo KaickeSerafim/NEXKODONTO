@@ -3,6 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from ..models import Agendamento
 from ..serializers import AgendamentoSerializer
+from ..serializer.agendamento_minimal_serializers import AgendamentoMinimalSerializer, AgendamentoDashboardSerializer
 from ..serializer.desmarcar_agendamento_serializers import DesmarcarAgendamentoSerializer
 from apps.utils.response_builder import ResponseBuilder
 from ..filters import AgendamentoFilter
@@ -13,9 +14,33 @@ class AgendamentoListCreateView(APIView):
     permission_classes = [IsAuthenticated]
     
     def get(self, request):
+        # Usa serializer minimal para a agenda/calendário (performance)
+        # Usa serializer dashboard para próximos atendimentos (dados completos)
+        # Usa serializer completo por padrão (backward compatibility)
+        
+        view_type = request.query_params.get('view', 'full')  # full, minimal, dashboard
+        
         agendamentos = Agendamento.objects.filter(dentista=request.user)
         filterset = AgendamentoFilter(request.GET, queryset=agendamentos)
-        serializer = AgendamentoSerializer(filterset.qs, many=True)
+        
+        # Seleciona o serializer apropriado baseado no tipo de visualização
+        if view_type == 'dashboard':
+            # Para dashboard: dados completos com select_related para performance
+            qs = filterset.qs.select_related(
+                'paciente', 
+                'procedimento', 
+                'criado_por', 
+                'updated_by'
+            ).prefetch_related('pagamentos')
+            serializer = AgendamentoDashboardSerializer(qs, many=True)
+        elif view_type == 'full':
+            # Para detalhes completos quando necessário
+            serializer = AgendamentoSerializer(filterset.qs, many=True)
+        else:  # minimal (padrão para calendário)
+            # Para calendário: apenas dados essenciais (melhor performance)
+            qs = filterset.qs.select_related('paciente').prefetch_related('pagamentos')
+            serializer = AgendamentoMinimalSerializer(qs, many=True)
+        
         return ResponseBuilder().success("Agendamentos listados com sucesso").with_data(serializer.data).to_response()
     
     def post(self, request):

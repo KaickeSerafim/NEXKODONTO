@@ -110,7 +110,7 @@ export function DialogDesmarcarAgendamentos({
                           { ag.data_hora ? ag.data_hora.substring(11, 16) : ""}
                         </span>
                         <h4 className="text-sm font-bold text-gray-700 truncate">
-                          {ag.paciente_detail.nome}
+                          {ag.paciente_detail?.nome}
                         </h4>
                       </div>
                       <div className="flex gap-1">
@@ -132,7 +132,7 @@ export function DialogDesmarcarAgendamentos({
                     <div className="flex items-center gap-3 text-xs text-gray-500">
                       <span className="flex items-center gap-1">
                         <User className="w-3 h-3" />
-                        {ag.procedimento_detail.nome}
+                        {ag.procedimento_detail?.nome || "Procedimento não informado"}
                       </span>
                     </div>
 

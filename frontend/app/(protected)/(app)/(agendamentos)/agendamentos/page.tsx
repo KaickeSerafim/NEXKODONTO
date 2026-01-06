@@ -8,7 +8,7 @@ import { useListAgendamentos } from "@/hooks/agendamento/useListAgendamentos";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AgendamentosPage() {
-  const { data: apiResponse, isLoading, isError, error } = useListAgendamentos();
+  const { data: apiResponse, isLoading, isError, error } = useListAgendamentos({ view: "minimal" });
 
 
 

@@ -11,11 +11,15 @@ from .views import (
     FichaPacienteView,
     DesmarcarAgendamentoView,
 )
+from .views.dashboard_views import DashboardStatsView
 
 urlpatterns = [
     # Pacientes
     path('pacientes/', PacienteListCreateView.as_view(), name='paciente-list-create'),
     path('pacientes/<int:pk>/', PacienteDetailView.as_view(), name='paciente-detail'),
+    
+    # Dashboard
+    path('dashboard/stats/', DashboardStatsView.as_view(), name='dashboard-stats'),
     
     # Agendamentos
     path('agendamentos/', AgendamentoListCreateView.as_view(), name='agendamento-list-create'),

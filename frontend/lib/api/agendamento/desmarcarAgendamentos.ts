@@ -18,7 +18,7 @@ export async function desmarcarAgendamentos(
     // Valida a resposta com o schema Zod
     const validatedResponse = desmarcarAgendamentosResponseSchema.parse(response.data);
     
-    if (!validatedResponse.success) {
+    if (validatedResponse.status !== "success") {
       throw new Error(validatedResponse.message || "Erro ao desmarcar agendamentos");
     }
 

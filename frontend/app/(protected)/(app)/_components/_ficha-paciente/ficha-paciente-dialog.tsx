@@ -20,12 +20,12 @@ export function FichaPacienteDialog({
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="p-3">
-            Ficha do Paciente - <span className="border-b border-b-slate-900 rounded-sm">{agendamento.paciente_detail.nome}</span>
+            Ficha do Paciente - <span className="border-b border-b-slate-900 rounded-sm">{agendamento.paciente_detail?.nome}</span>
           </DialogTitle>
         </DialogHeader>
 
         <FichaPaciente 
-          pacienteId={agendamento.paciente_detail.id}
+          pacienteId={agendamento.paciente_detail?.id || 0}
       
         />
       </DialogContent>

@@ -29,7 +29,8 @@ const desmarcarDataSchema = z.object({
 
 // Schema para a resposta completa da API
 export const desmarcarAgendamentosResponseSchema = z.object({
-  success: z.boolean(),
+  status: z.enum(["success", "error"]),
+  success: z.boolean().optional(),
   message: z.string(),
   data: desmarcarDataSchema,
 });

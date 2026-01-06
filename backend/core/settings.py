@@ -26,6 +26,7 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "django_filters",
     "rolepermissions",
+    "drf_spectacular",
 ]
 
 LOCAL_APPS = [
@@ -143,6 +144,7 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": [
         "django_filters.rest_framework.DjangoFilterBackend",
     ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 # -----------------------------------------
@@ -189,4 +191,21 @@ SIMPLE_JWT = {
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
     'JTI_CLAIM': 'jti',
+}
+
+# -----------------------------------------
+# SWAGGER SETTINGS
+# -----------------------------------------
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'NEXKODONTO API',
+    'DESCRIPTION': 'Documentação da API do sistema NEXKODONTO',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_PATCH': True,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
+        'persistAuthorization': True,
+        'displayOperationId': True,
+    },
 }

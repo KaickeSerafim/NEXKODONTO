@@ -7,6 +7,7 @@ interface ListAgendamentosParams {
   periodo?: string;
   status?: string;
   futuros?: boolean;
+  view?: 'minimal' | 'dashboard' | 'full';
 }
 
 export async function ListAgendamentos(params?: ListAgendamentosParams): Promise<AgendamentoResponse> {
@@ -17,6 +18,7 @@ export async function ListAgendamentos(params?: ListAgendamentosParams): Promise
     if (params?.periodo && params.periodo !== "todos") queryParams.append("periodo", params.periodo);
     if (params?.status && params.status !== "todos") queryParams.append("status", params.status);
     if (params?.futuros) queryParams.append("futuros", "true");
+    if (params?.view) queryParams.append("view", params.view);
     
     const url = `agendamentos/${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
 

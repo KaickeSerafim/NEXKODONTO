@@ -2,8 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, MoreVertical, Lock, Stethoscope } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {  Lock, Stethoscope } from "lucide-react";
 import { cn } from "@/lib/utils/utils";
 import { AppointmentItem } from "./appointment-item";
 import { Agendamento } from "@/app/schemas/agendamento/agendamento";
@@ -12,7 +11,7 @@ import ButtonOpcoesDiaCalendario from "./button-opcoes-dia-calendario";
 import { 
   getAgendamentosAtivos, 
   getAgendamentosCancelados, 
-  sortAgendamentosByTime 
+  sortAgendamentosByTime
 } from "@/app/functions/agendamentos/filter-agendamentos";
 
 interface DiaCalendarioProps {

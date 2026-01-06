@@ -7,6 +7,7 @@ interface UseListAgendamentosParams {
   periodo?: string;
   status?: string;
   futuros?: boolean;
+  view?: 'minimal' | 'dashboard' | 'full'; // Controla qual serializer usar no backend
 }
 
 export function useListAgendamentos(params?: UseListAgendamentosParams) {

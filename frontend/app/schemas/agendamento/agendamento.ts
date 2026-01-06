@@ -3,11 +3,11 @@ import { apiResponseSchema } from "../response/apiResponse";
 
 
 const pacienteDetailSchema = z.object({
-  id: z.number(),
+  id: z.number().optional(),
   nome: z.string(),
-  telefone: z.string().nullable(),
-  email: z.string().email().or(z.literal("")).nullable(),
-  dentista: z.number(),
+  telefone: z.string().nullable().optional(),
+  email: z.string().email().or(z.literal("")).nullable().optional(),
+  dentista: z.number().optional(),
 });
 
 const procedimentoDetailSchema = z.object({
@@ -45,27 +45,49 @@ const alteradoPorDetailSchema = z.object({
   nome_completo: z.string(),
 }).nullable();
 
+export const agendamentoMinimalSchema = z.object({
+  id: z.number(),
+  paciente_detail: z.object({
+    id: z.number(),
+    nome: z.string(),
+  }).optional(),
+  procedimento_detail: z.object({
+    id: z.number(),
+    nome: z.string(),
+  }).nullable().optional(),
+  data_hora: z.string().optional(),
+
+  status: z.string().optional(),
+  pagamento: z.array(z.object({
+    id: z.number(),
+    status: z.string(),
+    pago_em: z.string().nullable().optional(),
+  })).optional().default([]),
+});
+
 export const agendamentoSchema = z.object({
   id: z.number(),
   paciente_id: z.number().optional(),
-  paciente_detail: pacienteDetailSchema,
+  paciente_detail: pacienteDetailSchema.optional(),
   procedimento_id: z.number().optional(),
-  procedimento_detail: procedimentoDetailSchema,
-  dentista_detail: dentistaDetailSchema,
-  criado_por_detail: criadoPorDetailSchema.nullable(),
-  updated_by_detail: alteradoPorDetailSchema,
+  procedimento_detail: procedimentoDetailSchema.nullable().optional(),
+  dentista_detail: dentistaDetailSchema.optional(),
+  criado_por_detail: criadoPorDetailSchema.nullable().optional(),
+  updated_by_detail: alteradoPorDetailSchema.optional(),
   pagamento: z.array(pagamentoSchema).optional().default([]),
   data_hora: z.string().optional(),
   data_hora_fim: z.string().nullable().optional(),
   motivo: z.string().nullable().optional(),
   status: z.string().optional(),
   observacoes: z.string().nullable().optional(),
-  criado_em: z.string(),
-  atualizado_em: z.string(),
+  criado_em: z.string().optional(),
+  atualizado_em: z.string().optional(),
 });
 
+export const agendamentoUnionSchema = z.union([agendamentoSchema, agendamentoMinimalSchema]);
+
 export const agendamentoResponseSchema = apiResponseSchema.extend({
-  data: z.array(agendamentoSchema),
+  data: z.array(agendamentoUnionSchema),
 });
 
 export const agendamentoDetailResponseSchema = apiResponseSchema.extend({
@@ -83,7 +105,8 @@ export const agendamentoUpdateSchema = agendamentoSchema.omit({
   atualizado_em: true,
 });
 
-export type Agendamento = z.infer<typeof agendamentoSchema>;
+export type Agendamento = z.infer<typeof agendamentoUnionSchema>;
+export type AgendamentoFull = z.infer<typeof agendamentoSchema>;
 export type AgendamentoResponse = z.infer<typeof agendamentoResponseSchema>;
 export type AgendamentoDetailResponse = z.infer<typeof agendamentoDetailResponseSchema>;
 

@@ -8,8 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Agendamento } from "@/app/schemas/agendamento/agendamento";
 import { useUpdateAgendamento } from "@/hooks/agendamento/useUpdateAgendamento";
-import { useState } from "react";
+import { useAgendamentoDetail } from "@/hooks/agendamento/useAgendamentoDetail";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import Loading from "@/components/loading/Loading";
 
 interface EditarAgendamentoProps {
   open: boolean;
@@ -19,17 +21,34 @@ interface EditarAgendamentoProps {
 
 export function EditarAgendamento({ open, onOpenChange, agendamento }: EditarAgendamentoProps) {
   const { mutate, isPending } = useUpdateAgendamento();
+  
+  // Busca detalhes completos apenas quando o dialog estiver aberto
+  const { data: detailResponse, isLoading: isLoadingDetail } = useAgendamentoDetail(agendamento.id, open);
+  const detail = detailResponse?.data;
+
   const [formData, setFormData] = useState<{
     data_hora: string;
     motivo: string;
     status: string;
     observacoes: string;
   }>({
-    data_hora: agendamento.data_hora.slice(0, 16),
-    motivo: agendamento.motivo || "",
-    status: (agendamento.status ) || "",
-    observacoes: agendamento.observacoes || "",
+    data_hora: (agendamento.data_hora || "").slice(0, 16),
+    motivo: "",
+    status: agendamento.status || "",
+    observacoes: "",
   });
+
+  // Atualiza o formulário quando os detalhes chegarem do backend
+  useEffect(() => {
+    if (detail) {
+      setFormData({
+        data_hora: (detail.data_hora || "").slice(0, 16),
+        motivo: detail.motivo || "",
+        status: detail.status || "",
+        observacoes: detail.observacoes || "",
+      });
+    }
+  }, [detail]);
 
   const handleSubmit = () => {
     mutate(
@@ -54,11 +73,17 @@ export function EditarAgendamento({ open, onOpenChange, agendamento }: EditarAge
         </DialogHeader>
         
         <div className="space-y-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Paciente</Label>
-              <Input defaultValue={agendamento.paciente_detail.nome} disabled />
+          {isLoadingDetail ? (
+            <div className="py-20 flex items-center justify-center">
+              <Loading />
             </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Paciente</Label>
+                  <Input defaultValue={agendamento.paciente_detail?.nome || ""} disabled />
+                </div>
             
             <div className="space-y-2">
               <Label>Data e Hora</Label>
@@ -110,6 +135,8 @@ export function EditarAgendamento({ open, onOpenChange, agendamento }: EditarAge
               {isPending ? "Salvando..." : "Salvar Alterações"}
             </Button>
           </div>
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>
