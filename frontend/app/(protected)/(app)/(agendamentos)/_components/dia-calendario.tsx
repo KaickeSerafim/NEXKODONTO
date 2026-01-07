@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils/utils";
 import { AppointmentItem } from "./appointment-item";
 import { Agendamento } from "@/app/schemas/agendamento/agendamento";
 import { Bloqueio } from "@/app/schemas/bloqueio/bloqueio";
-import ButtonOpcoesDiaCalendario from "./button-opcoes-dia-calendario";
+import ButtonOpcoesDiaCalendario from "./_opcoes-dia/button-opcoes-dia-calendario";
 import { 
   getAgendamentosAtivos, 
   getAgendamentosCancelados, 

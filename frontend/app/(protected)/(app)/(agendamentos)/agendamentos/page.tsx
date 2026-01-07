@@ -6,6 +6,7 @@ import CalendarioAgendamento from "../_components";
 import { Button } from "@/components/ui/button";
 import { useListAgendamentos } from "@/hooks/agendamento/useListAgendamentos";
 import { Skeleton } from "@/components/ui/skeleton";
+import ButtonAddAgendamento from "../_components/_add-agendamento";
 
 export default function AgendamentosPage() {
   const { data: apiResponse, isLoading, isError, error } = useListAgendamentos({ view: "minimal" });
@@ -46,10 +47,7 @@ export default function AgendamentosPage() {
            initial={{ opacity: 0, x: 20 }}
            animate={{ opacity: 1, x: 0 }}
         >
-          <Button className="gap-2 shadow-md">
-            <Plus className="w-4 h-4" />
-            Novo Agendamento
-          </Button>
+   <ButtonAddAgendamento />
         </motion.div>
       </div>
 

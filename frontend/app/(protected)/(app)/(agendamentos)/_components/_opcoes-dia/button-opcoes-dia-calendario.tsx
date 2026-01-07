@@ -19,14 +19,14 @@ import {
   handleDesmarcarSuccess,
   handleDesmarcarError,
   type DesmarcarAgendamentosResponse
-} from "./_opcoes-dia/_desmarcar";
+} from "./_desmarcar";
 import { 
   MenuItemTravarDia, 
   DialogTravarDia,
   handleBloqueioSuccess,
   handleDesbloqueioSuccess,
   handleBloqueioError
-} from "./_opcoes-dia/_travar-dia";
+} from "./_travar-dia";
 import { Agendamento } from "@/app/schemas/agendamento/agendamento";
 
 interface ButtonOpcoesDiaCalendarioProps {
