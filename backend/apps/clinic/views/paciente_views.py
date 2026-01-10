@@ -5,16 +5,26 @@ from ..models import Paciente
 from ..serializers import PacienteSerializer
 from apps.utils.response_builder import ResponseBuilder
 
-class PacienteListCreateView(APIView):
+from ..filter.paciente_filter import PacienteFilter
+
+from rest_framework import generics
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
+from apps.utils.pagination import CustomLimitOffsetPagination
+
+class PacienteListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
-    
-    def get(self, request):
-        pacientes = Paciente.objects.filter(dentista=request.user)
-        serializer = PacienteSerializer(pacientes, many=True)
-        return ResponseBuilder().success("Pacientes listados com sucesso").with_data(serializer.data).to_response()
-    
-    def post(self, request):
-        serializer = PacienteSerializer(data=request.data)
+    serializer_class = PacienteSerializer
+    pagination_class = CustomLimitOffsetPagination
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_class = PacienteFilter
+    ordering = ['-criado_em']
+
+    def get_queryset(self):
+        return Paciente.objects.filter(dentista=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             serializer.save(dentista=request.user)
             return ResponseBuilder().created("Paciente criado com sucesso").with_data(serializer.data).to_response()

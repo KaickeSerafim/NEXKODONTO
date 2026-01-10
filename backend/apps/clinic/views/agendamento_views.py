@@ -6,7 +6,7 @@ from ..serializers import AgendamentoSerializer
 from ..serializer.agendamento_minimal_serializers import AgendamentoMinimalSerializer, AgendamentoDashboardSerializer
 from ..serializer.desmarcar_agendamento_serializers import DesmarcarAgendamentoSerializer
 from apps.utils.response_builder import ResponseBuilder
-from ..filters import AgendamentoFilter
+from ..filter.agendamento_filter import AgendamentoFilter
 from ..signals import set_current_user
 from apps.usuarios.models import BloqueioAgenda
 

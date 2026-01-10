@@ -20,6 +20,11 @@ class Paciente(models.Model):
     estado = models.CharField(max_length=100, null=True, blank=True)
     cep = models.CharField(max_length=20, null=True, blank=True)
     observacoes = models.TextField(null=True, blank=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    atualizado_em = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-criado_em']
 
     def __str__(self):
         return f"{self.nome} ({self.dentista.username})"
