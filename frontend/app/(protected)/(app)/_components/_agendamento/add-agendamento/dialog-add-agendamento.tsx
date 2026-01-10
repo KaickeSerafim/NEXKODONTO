@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import InputSearchPaciente from "../../_paciente/input-search-pacientes";
 
 interface DialogAddAgendamentoProps {
   open: boolean;
@@ -54,19 +55,7 @@ export function DialogAddAgendamento({
         <div className="px-6 py-4 space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="paciente" className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
-                <User className="w-3.5 h-3.5" />
-                Paciente
-              </Label>
-              <Select>
-                <SelectTrigger id="paciente" className="h-11 bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all rounded-lg">
-                  <SelectValue placeholder="Selecione o paciente" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">João Silva</SelectItem>
-                  <SelectItem value="2">Maria Oliveira</SelectItem>
-                </SelectContent>
-              </Select>
+             <InputSearchPaciente />
             </div>
 
             <div className="space-y-2">

@@ -6,7 +6,7 @@ import CalendarioAgendamento from "../_components";
 import { Button } from "@/components/ui/button";
 import { useListAgendamentos } from "@/hooks/agendamento/useListAgendamentos";
 import { Skeleton } from "@/components/ui/skeleton";
-import ButtonAddAgendamento from "../_components/_add-agendamento";
+import ButtonAddAgendamento from "../../_components/_agendamento/add-agendamento";
 
 export default function AgendamentosPage() {
   const { data: apiResponse, isLoading, isError, error } = useListAgendamentos({ view: "minimal" });
