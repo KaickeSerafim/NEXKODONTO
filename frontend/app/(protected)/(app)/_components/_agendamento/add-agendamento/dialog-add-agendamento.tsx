@@ -21,6 +21,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import InputSearchPaciente from "../../_paciente/input-search-pacientes";
+import InputSearchProcedimento from "../../_procedimento/input-search-procedimento";
+import ButtonAddPaciente from "../../_paciente/add-paciente";
+import ButtonAddProcedimento from "../../_procedimento/add-procedimento";
 
 interface DialogAddAgendamentoProps {
   open: boolean;
@@ -33,7 +36,7 @@ export function DialogAddAgendamento({
 }: DialogAddAgendamentoProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] border-none shadow-2xl bg-white/95 backdrop-blur-sm overflow-hidden p-0">
+      <DialogContent className="sm:max-w-[700px] border-none shadow-2xl bg-white/95 backdrop-blur-sm overflow-hidden p-0">
         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary via-blue-500 to-primary/80" />
         
         <DialogHeader className="px-6 pt-8 pb-4">
@@ -53,25 +56,31 @@ export function DialogAddAgendamento({
         </DialogHeader>
 
         <div className="px-6 py-4 space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-             <InputSearchPaciente />
+          <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-3 gap-4 items-end">
+              <div className="space-y-2 col-span-2">
+                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5" />
+                  Paciente
+                </Label>
+                <InputSearchPaciente />
+              </div>
+              <div className="col-span-1">
+                <ButtonAddPaciente />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="procedimento" className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
-                <Briefcase className="w-3.5 h-3.5" />
-                Procedimento
-              </Label>
-              <Select>
-                <SelectTrigger id="procedimento" className="h-11 bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all rounded-lg">
-                  <SelectValue placeholder="Selecione o procedimento" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">Limpeza</SelectItem>
-                  <SelectItem value="2">Canal</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-3 gap-4 items-end">
+              <div className="space-y-2 col-span-2">
+                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+                  <Briefcase className="w-3.5 h-3.5" />
+                  Procedimento
+                </Label>
+                <InputSearchProcedimento />
+              </div>
+              <div className="col-span-1">
+                <ButtonAddProcedimento />
+              </div>
             </div>
           </div>
 

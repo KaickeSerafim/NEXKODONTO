@@ -10,6 +10,8 @@ from .views import (
     AtendimentosListView,
     FichaPacienteView,
     DesmarcarAgendamentoView,
+    ProcedimentoListCreateView,
+    ProcedimentoDetailView,
 )
 from .views.dashboard_views import DashboardStatsView
 
@@ -18,6 +20,10 @@ urlpatterns = [
     path('pacientes/', PacienteListCreateView.as_view(), name='paciente-list-create'),
     path('pacientes/<int:pk>/', PacienteDetailView.as_view(), name='paciente-detail'),
     
+    # Procedimentos
+    path('procedimentos/', ProcedimentoListCreateView.as_view(), name='procedimento-list-create'),
+    path('procedimentos/<int:pk>/', ProcedimentoDetailView.as_view(), name='procedimento-detail'),
+
     # Dashboard
     path('dashboard/stats/', DashboardStatsView.as_view(), name='dashboard-stats'),
     

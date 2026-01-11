@@ -3,3 +3,4 @@ from .agendamento_views import AgendamentoListCreateView, AgendamentoDetailView,
 from .ficha_paciente_views import (HistoricoMedicoDetailView, PlanoTratamentoListCreateView, 
                                  PlanoTratamentoDetailView, FichaPacienteView)
 from .atendimento_views import AtendimentosListView
+from .procedimento_views import ProcedimentoListCreateView, ProcedimentoDetailView
