@@ -3,6 +3,8 @@ from django.db import models
 from django.utils import timezone
 from datetime import timedelta
 from .choices import StatusAgendamento, PrioridadeTratamento
+from .utils.functions.determinar_default_valor_agendamento import determinar_default_valor_agendamento
+
 
 
 USER = settings.AUTH_USER_MODEL
@@ -50,13 +52,14 @@ class Agendamento(models.Model):
     dentista = models.ForeignKey(USER, on_delete=models.CASCADE, related_name='consultas')
     criado_por = models.ForeignKey(USER, on_delete=models.SET_NULL, null=True, blank=True, related_name='consultas_criadas')
     data_hora = models.DateTimeField()
+    valor = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     active = models.BooleanField(default=True)
     data_hora_fim = models.DateTimeField(editable=False, null=True, blank=True)
     motivo = models.CharField(max_length=255, null=True, blank=True)
     status = models.CharField(max_length=20, choices=StatusAgendamento.choices, default='agendada')
     observacoes = models.TextField(null=True, blank=True)
     updated_by = models.ForeignKey(USER, on_delete=models.SET_NULL, null=True, blank=True, related_name='consultas_atualizadas')
-    criado_em = models.DateTimeField(auto_now_add=True)
+    criado_em = models.DateTimeField(auto_now_add=True) 
     atualizado_em = models.DateTimeField(auto_now=True)
 
 
@@ -64,6 +67,9 @@ class Agendamento(models.Model):
         ordering = ['-data_hora']
 
     def save(self, *args, **kwargs):
+        # Determina o valor padrão via utilitário
+        self.valor = determinar_default_valor_agendamento(self)
+
         # Lógica automática: Se tem procedimento, calcula o fim da consulta
         if self.procedimento and self.data_hora:
             self.data_hora_fim = self.data_hora + timedelta(minutes=self.procedimento.duracao_minutos)
