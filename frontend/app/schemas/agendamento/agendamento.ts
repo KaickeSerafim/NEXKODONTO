@@ -59,6 +59,7 @@ export const agendamentoMinimalSchema = z.object({
 
   status: z.string().optional(),
   valor: z.union([z.number(), z.string()]).optional().transform((val) => val ? Number(val) : undefined),
+  duracao_estimada: z.number().optional(),
   pagamento: z.array(z.object({
     id: z.number(),
     status: z.string(),
@@ -79,6 +80,7 @@ export const agendamentoSchema = z.object({
   data_hora: z.string().optional(),
   data_hora_fim: z.string().nullable().optional(),
   valor: z.union([z.number(), z.string()]).optional().transform((val) => val ? Number(val) : undefined),
+  duracao_estimada: z.number().optional(),
   motivo: z.string().nullable().optional(),
   status: z.string().optional(),
   observacoes: z.string().nullable().optional(),
@@ -119,6 +121,7 @@ export const createAgendamentoSchema = z.object({
   procedimento_id: z.number().nullable().optional(),
   data_hora: z.string(),
   valor: z.number().optional().default(0),
+  duracao_estimada: z.number().optional().default(30),
   observacoes: z.string().optional().default(""),
 });
 

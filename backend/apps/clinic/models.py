@@ -4,6 +4,7 @@ from django.utils import timezone
 from datetime import timedelta
 from .choices import StatusAgendamento, PrioridadeTratamento
 from .utils.functions.determinar_default_valor_agendamento import determinar_default_valor_agendamento
+from .utils.functions.determinar_duracao_agendamento import determinar_duracao_agendamento
 
 
 
@@ -53,6 +54,7 @@ class Agendamento(models.Model):
     criado_por = models.ForeignKey(USER, on_delete=models.SET_NULL, null=True, blank=True, related_name='consultas_criadas')
     data_hora = models.DateTimeField()
     valor = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    duracao_estimada = models.PositiveIntegerField(null=True, blank=True)
     active = models.BooleanField(default=True)
     data_hora_fim = models.DateTimeField(editable=False, null=True, blank=True)
     motivo = models.CharField(max_length=255, null=True, blank=True)
@@ -67,12 +69,13 @@ class Agendamento(models.Model):
         ordering = ['-data_hora']
 
     def save(self, *args, **kwargs):
-        # Determina o valor padrão via utilitário
+        # Determina o valor e duração padrão via utilitários
         self.valor = determinar_default_valor_agendamento(self)
+        self.duracao_estimada = determinar_duracao_agendamento(self)
 
-        # Lógica automática: Se tem procedimento, calcula o fim da consulta
-        if self.procedimento and self.data_hora:
-            self.data_hora_fim = self.data_hora + timedelta(minutes=self.procedimento.duracao_minutos)
+        # Lógica automática: calcula o fim da consulta baseado na duração estimada
+        if self.data_hora and self.duracao_estimada:
+            self.data_hora_fim = self.data_hora + timedelta(minutes=self.duracao_estimada)
         super().save(*args, **kwargs)
 
     def __str__(self):

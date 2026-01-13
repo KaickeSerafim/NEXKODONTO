@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/user/use-toast";
 import { Procedimento } from "@/app/schemas/procedimento/procedimento";
 import { Paciente } from "@/app/schemas/paciente/paciente";
 
-import { Plus, Calendar, Clock, User, Briefcase, FileText, DollarSign, Loader2 } from "lucide-react";
+import { Plus, Calendar, Clock, User, Briefcase, FileText, DollarSign, Loader2, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -41,6 +41,7 @@ export function DialogAddAgendamento({
     resolver: zodResolver(createAgendamentoSchema),
     defaultValues: {
       valor: 0,
+      duracao_estimada: 30,
       observacoes: "",
     },
   });
@@ -92,9 +93,16 @@ export function DialogAddAgendamento({
       if (!currentValor || currentValor === 0) {
         form.setValue("valor", Number(procedimento.preco_base));
       }
+
+      // Se a duração estiver no padrão, coloca a duração do procedimento
+      const currentDuracao = form.getValues("duracao_estimada");
+      if (!currentDuracao || currentDuracao === 30) {
+        form.setValue("duracao_estimada", Number(procedimento.duracao_minutos));
+      }
     } else {
       form.setValue("procedimento_id", null);
       form.setValue("valor", 0);
+      form.setValue("duracao_estimada", 30);
     }
   };
 
@@ -155,8 +163,8 @@ export function DialogAddAgendamento({
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
+            <div className="grid grid-cols-4 gap-4">
+              <div className="space-y-2 col-span-1">
                 <Label htmlFor="data" className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5" />
                   Data
@@ -172,7 +180,7 @@ export function DialogAddAgendamento({
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 col-span-1">
                 <Label htmlFor="hora" className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5" />
                   Horário
@@ -189,10 +197,10 @@ export function DialogAddAgendamento({
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 col-span-1">
                 <Label htmlFor="valor" className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
                   <DollarSign className="w-3.5 h-3.5" />
-                  Valor da Consulta
+                  Valor
                 </Label>
                 <Input
                   id="valor"
@@ -200,6 +208,19 @@ export function DialogAddAgendamento({
                   step="0.01"
                   {...form.register("valor", { valueAsNumber: true })}
                   className="h-11 bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all rounded-lg font-bold text-primary"
+                />
+              </div>
+
+              <div className="space-y-2 col-span-1">
+                <Label htmlFor="duracao" className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+                  <Timer className="w-3.5 h-3.5" />
+                  Duração (min)
+                </Label>
+                <Input
+                  id="duracao"
+                  type="number"
+                  {...form.register("duracao_estimada", { valueAsNumber: true })}
+                  className="h-11 bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all rounded-lg font-bold text-blue-600"
                 />
               </div>
             </div>
