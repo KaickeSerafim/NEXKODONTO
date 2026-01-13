@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import {  Lock, Stethoscope } from "lucide-react";
 import { cn } from "@/lib/utils/utils";
 import { AppointmentItem } from "./appointment-item";
+import { StatusCounters } from "./status-counters";
 import { Agendamento } from "@/app/schemas/agendamento/agendamento";
 import { Bloqueio } from "@/app/schemas/bloqueio/bloqueio";
 import ButtonOpcoesDiaCalendario from "./_opcoes-dia/button-opcoes-dia-calendario";
@@ -59,12 +60,17 @@ export function DiaCalendario({ day, activeDay, agendamentos, bloqueios, data, a
       )}
     >
       <div className="flex justify-between items-center mb-1.5 px-1">
-        <span className={cn(
-          "text-xs font-black w-6 h-6 flex items-center justify-center rounded-lg transition-all",
-          activeDay ? "bg-primary text-white shadow-lg shadow-primary/30" : "text-gray-400 group-hover:text-gray-900"
-        )}>
-          {day}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span className={cn(
+            "text-xs font-black w-6 h-6 flex items-center justify-center rounded-lg transition-all",
+            activeDay ? "bg-primary text-white shadow-lg shadow-primary/30" : "text-gray-400 group-hover:text-gray-900"
+          )}>
+            {day}
+          </span>
+
+          {/* Contadores de Status Agrupados - Layout Vertical */}
+          <StatusCounters agendamentos={agendamentos} />
+        </div>
         
         {agendamentosAtivos.length > 0 ? (
           <ButtonOpcoesDiaCalendario 

@@ -104,7 +104,7 @@ export default function ButtonOpcoesDiaCalendario({
   };
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center  border border-gray-800 rounded-md ">
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
