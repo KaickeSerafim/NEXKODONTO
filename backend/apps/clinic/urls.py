@@ -12,6 +12,7 @@ from .views import (
     DesmarcarAgendamentoView,
     ProcedimentoListCreateView,
     ProcedimentoDetailView,
+    DisponibilidadeView,
 )
 from .views.dashboard_views import DashboardStatsView
 
@@ -31,6 +32,7 @@ urlpatterns = [
     path('agendamentos/', AgendamentoListCreateView.as_view(), name='agendamento-list-create'),
     path('agendamentos/<int:pk>/', AgendamentoDetailView.as_view(), name='agendamento-detail'),
     path('agendamentos/desmarcar/', DesmarcarAgendamentoView.as_view(), name='agendamento-desmarcar'),
+    path('agendamentos/disponibilidade/', DisponibilidadeView.as_view(), name='agendamento-disponibilidade'),
     
     # Ficha do Paciente
     path('pacientes/<int:pk>/ficha/', FichaPacienteView.as_view(), name='ficha-paciente'),

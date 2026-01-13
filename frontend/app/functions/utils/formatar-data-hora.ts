@@ -1,3 +1,5 @@
+import { format, addMinutes, parseISO } from "date-fns";
+
 export const formatarDataHora = (dataHora: string) => {
   if (!dataHora) return "-";
   const data = new Date(dataHora);
@@ -10,3 +12,51 @@ export const formatarDataHora = (dataHora: string) => {
     minute: "2-digit",
   });
 }
+
+/**
+ * Formata uma data para o formato HH:mm
+ */
+export const formatarHora = (date: Date | string): string => {
+  if (typeof date === 'string') {
+    return format(parseISO(date), "HH:mm");
+  }
+  return format(date, "HH:mm");
+};
+
+/**
+ * Calcula o horário de término baseado em um horário inicial e duração
+ * @param dataHoraInicio - Data e hora de início no formato ISO string
+ * @param duracaoMinutos - Duração em minutos
+ * @returns Hora de término formatada (HH:mm) ou null se inválido
+ */
+export const calcularHorarioFim = (
+  dataHoraInicio: string | null | undefined,
+  duracaoMinutos: number | null | undefined
+): string | null => {
+  if (!dataHoraInicio || !duracaoMinutos) return null;
+  
+  try {
+    const inicio = dataHoraInicio.endsWith('Z') 
+      ? parseISO(dataHoraInicio) 
+      : parseISO(dataHoraInicio + 'Z');
+    
+    const fim = addMinutes(inicio, duracaoMinutos);
+    return format(fim, "HH:mm");
+  } catch (e) {
+    return null;
+  }
+};
+
+/**
+ * Adiciona minutos a uma data
+ */
+export const adicionarMinutos = (date: Date, minutes: number): Date => {
+  return addMinutes(date, minutes);
+};
+
+/**
+ * Converte string ISO para Date
+ */
+export const converterISOParaDate = (isoString: string): Date => {
+  return parseISO(isoString);
+};

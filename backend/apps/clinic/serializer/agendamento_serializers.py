@@ -53,11 +53,50 @@ class AgendamentoSerializer(serializers.ModelSerializer):
                   'data_hora', 'motivo', 'status', 'observacoes', 'criado_em', 'atualizado_em', 'pagamento']
         read_only_fields = ['id', 'criado_em', 'atualizado_em', 'updated_by']
     
+    def validate(self, data):
+        # Se for atualização parcial, precisamos dos dados da instância
+        instance = self.instance
+        dentista = data.get('dentista', instance.dentista if instance else None)
+        data_hora = data.get('data_hora', instance.data_hora if instance else None)
+        duracao_estimada = data.get('duracao_estimada', instance.duracao_estimada if instance else None)
+        status = data.get('status', instance.status if instance else None)
+
+        # Se não tiver dentista (pode acontecer no create se não passado ainda), 
+        # o view cuidará de passar o request.user depois, mas o serializer
+        # pode receber se vier no validated_data. No nosso caso, o view passa 
+        # depois no save(), então precisamos garantir que temos o dentista aqui.
+        if not dentista and 'request' in self.context:
+            dentista = self.context['request'].user
+
+        # Apenas valida overlap se o status for um dos que bloqueiam
+        from ..choices import StatusAgendamento
+        status_bloqueantes = [
+            StatusAgendamento.AGENDADA,
+            StatusAgendamento.CONFIRMADA,
+            StatusAgendamento.CONCLUIDA
+        ]
+
+        if status in status_bloqueantes and dentista and data_hora and duracao_estimada:
+            from ..utils.validators import validate_appointment_overlap
+            from rest_framework import serializers as drf_serializers
+            try:
+                validate_appointment_overlap(
+                    dentista=dentista,
+                    data_hora=data_hora,
+                    duracao_estimada=duracao_estimada,
+                    exclude_id=instance.id if instance else None
+                )
+            except ValidationError as e:
+                raise drf_serializers.ValidationError(e.message)
+
+        return data
+
     def create(self, validated_data):
         paciente_id = validated_data.pop('paciente_id')
         validated_data['paciente_id'] = paciente_id
-        procedimento_id = validated_data.pop('procedimento_id')
-        validated_data['procedimento_id'] = procedimento_id
+        procedimento_id = validated_data.pop('procedimento_id', None)
+        if procedimento_id:
+            validated_data['procedimento_id'] = procedimento_id
         return super().create(validated_data)
     
     def update(self, instance, validated_data):

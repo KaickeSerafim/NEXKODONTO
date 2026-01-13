@@ -44,30 +44,7 @@ class AgendamentoListCreateView(APIView):
         return ResponseBuilder().success("Agendamentos listados com sucesso").with_data(serializer.data).to_response()
     
     def post(self, request):
-        data_hora = request.data.get('data_hora')
-        if data_hora:
-            try:
-                from datetime import datetime
-                dt_agendamento = datetime.fromisoformat(data_hora.replace('Z', ''))
-                data_agendamento = dt_agendamento.date()
-                hora_agendamento = dt_agendamento.time()
-                
-                # Busca bloqueios para o dia
-                bloqueios = BloqueioAgenda.objects.filter(dentista=request.user, data=data_agendamento)
-                
-                for bloqueio in bloqueios:
-                    # Se hora_inicio e hora_fim forem nulos, o dia TODO está bloqueado
-                    if bloqueio.hora_inicio is None and bloqueio.hora_fim is None:
-                        return ResponseBuilder().error("Este dia está totalmente bloqueado para novos agendamentos").with_status(status.HTTP_400_BAD_REQUEST).to_response()
-                    
-                    # Se houver horário, verifica se o agendamento cai no intervalo
-                    if bloqueio.hora_inicio and bloqueio.hora_fim:
-                        if bloqueio.hora_inicio <= hora_agendamento <= bloqueio.hora_fim:
-                            return ResponseBuilder().error(f"O horário {hora_agendamento.strftime('%H:%M')} está bloqueado: {bloqueio.motivo or 'Sem motivo'}").with_status(status.HTTP_400_BAD_REQUEST).to_response()
-            except (ValueError, IndexError):
-                pass
-        
-        serializer = AgendamentoSerializer(data=request.data)
+        serializer = AgendamentoSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save(dentista=request.user, criado_por=request.user)
             return ResponseBuilder().created("Agendamento criado com sucesso").with_data(serializer.data).to_response()

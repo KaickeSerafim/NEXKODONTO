@@ -4,3 +4,4 @@ from .ficha_paciente_views import (HistoricoMedicoDetailView, PlanoTratamentoLis
                                  PlanoTratamentoDetailView, FichaPacienteView)
 from .atendimento_views import AtendimentosListView
 from .procedimento_views import ProcedimentoListCreateView, ProcedimentoDetailView
+from .disponibilidade_views import DisponibilidadeView
