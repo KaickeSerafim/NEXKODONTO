@@ -24,20 +24,27 @@ interface DiaCalendarioProps {
 }
 
 export function DiaCalendario({ day, activeDay, agendamentos, bloqueios, data, animationDelay }: DiaCalendarioProps) {
-  const [mostrarCancelados, setMostrarCancelados] = useState(false);
+  const [filterMode, setFilterMode] = useState<"default" | "cancelada" | "faltou" | "concluida">("default");
   
   const isBloqueado = bloqueios.length > 0;
   const isBloqueioTotal = bloqueios.some(b => !b.hora_inicio && !b.hora_fim);
   
-  // Filtra agendamentos usando as funções centralizadas
-  const agendamentosAtivos = getAgendamentosAtivos(agendamentos);
-  const agendamentosCancelados = getAgendamentosCancelados(agendamentos);
-  
-  const agendamentosVisiveis = mostrarCancelados ? agendamentos : agendamentosAtivos;
+  // Filtra agendamentos baseados no modo selecionado
+  const agendamentosAtivos = agendamentos.filter(ag => ["agendada", "confirmada"].includes(ag.status || ""));
+  const agendamentosCancelados = agendamentos.filter(ag => ag.status === "cancelada");
+  const agendamentosFaltou = agendamentos.filter(ag => ag.status === "faltou");
+  const agendamentosConcluida = agendamentos.filter(ag => ag.status === "concluida");
+
+  const agendamentosVisiveis = 
+    filterMode === "cancelada" ? agendamentosCancelados :
+    filterMode === "faltou" ? agendamentosFaltou :
+    filterMode === "concluida" ? agendamentosConcluida :
+    agendamentosAtivos;
+
   const sortedAgendamentos = sortAgendamentosByTime(agendamentosVisiveis);
 
-  const handleToggleCancelados = () => {
-    setMostrarCancelados(!mostrarCancelados);
+  const handleSetFilterMode = (mode: "default" | "cancelada" | "faltou" | "concluida") => {
+    setFilterMode(mode);
   };
 
   return (
@@ -64,14 +71,16 @@ export function DiaCalendario({ day, activeDay, agendamentos, bloqueios, data, a
             agendamentos={agendamentosAtivos}
             data={data}
             isBloqueado={isBloqueado}
-            onVerCancelados={handleToggleCancelados}
+            onFilterChange={handleSetFilterMode}
+            filterMode={filterMode}
           />
         ) : agendamentosCancelados.length > 0 ? (
           <ButtonOpcoesDiaCalendario 
             agendamentos={[]}
             data={data}
             isBloqueado={isBloqueado}
-            onVerCancelados={handleToggleCancelados}
+            onFilterChange={handleSetFilterMode}
+            filterMode={filterMode}
           />
         ) : (
           <div className="flex items-center gap-1">
@@ -79,6 +88,8 @@ export function DiaCalendario({ day, activeDay, agendamentos, bloqueios, data, a
               agendamentos={[]}
               data={data}
               isBloqueado={isBloqueado}
+              onFilterChange={handleSetFilterMode}
+              filterMode={filterMode}
             />
 
           </div>
@@ -126,10 +137,15 @@ export function DiaCalendario({ day, activeDay, agendamentos, bloqueios, data, a
         )}
       </div>
       
-      {/* Indicador visual quando mostrando cancelados */}
-      {mostrarCancelados && agendamentosCancelados.length > 0 && (
-        <div className="absolute bottom-1 right-1 text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold">
-          Mostrando cancelados
+      {/* Indicador visual quando mostrando filtros específicos */}
+      {filterMode !== "default" && (
+        <div className={cn(
+          "absolute bottom-1 right-1 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider",
+          filterMode === "cancelada" ? "bg-red-100 text-red-600" :
+          filterMode === "faltou" ? "bg-pink-100 text-pink-600" :
+          "bg-blue-100 text-blue-600"
+        )}>
+          {filterMode}
         </div>
       )}
     </motion.div>

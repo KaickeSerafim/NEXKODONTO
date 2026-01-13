@@ -5,10 +5,12 @@ import { MoreVertical, XCircle } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils/utils";
 import { useDesmarcarAgendamentos } from "@/hooks/agendamento/useDesmarcarAgendamentos";
 import { useBloquearDia, useDesbloquearDia } from "@/hooks/user/useBloqueio";
 import { 
@@ -29,12 +31,14 @@ import {
 } from "./_travar-dia";
 import { Agendamento } from "@/app/schemas/agendamento/agendamento";
 
+
 interface ButtonOpcoesDiaCalendarioProps {
   agendamentos: Agendamento[];
   data: string; // YYYY-MM-DD
   isBloqueado: boolean;
   onSuccess?: () => void;
-  onVerCancelados?: () => void;
+  onFilterChange?: (mode: "default" | "cancelada" | "faltou" | "concluida") => void;
+  filterMode?: "default" | "cancelada" | "faltou" | "concluida";
 }
 
 export default function ButtonOpcoesDiaCalendario({
@@ -42,7 +46,8 @@ export default function ButtonOpcoesDiaCalendario({
   data,
   isBloqueado,
   onSuccess,
-  onVerCancelados,
+  onFilterChange,
+  filterMode = "default",
 }: ButtonOpcoesDiaCalendarioProps) {
   const [openDesmarcar, setOpenDesmarcar] = useState(false);
   const [openTravar, setOpenTravar] = useState(false);
@@ -113,7 +118,10 @@ export default function ButtonOpcoesDiaCalendario({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className="h-6 w-6 opacity-0 group-hover:opacity-100 rounded-md text-gray-400 hover:text-primary hover:bg-primary/5 transition-all flex items-center justify-center"
+            className={cn(
+               "h-6 w-6 opacity-0 group-hover:opacity-100 rounded-md transition-all flex items-center justify-center",
+               filterMode !== "default" ? "opacity-100 text-primary bg-primary/10" : "text-gray-400 hover:text-primary hover:bg-primary/5"
+            )}
             title="Mais opções do dia"
           >
             <MoreVertical className="w-3.5 h-3.5" />
@@ -122,9 +130,42 @@ export default function ButtonOpcoesDiaCalendario({
 
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel className="text-xs font-bold text-gray-500">
-            Opções do Dia
+            Filtros de Exibição
           </DropdownMenuLabel>
+          
+          <DropdownMenuItem 
+            className={cn("text-xs font-medium cursor-pointer", filterMode === "default" && "bg-primary/5 text-primary font-bold")}
+            onSelect={() => onFilterChange?.("default")}
+          >
+            Padrão (Agendada/Confirmada)
+          </DropdownMenuItem>
+
+          <DropdownMenuItem 
+            className={cn("text-xs font-medium cursor-pointer", filterMode === "concluida" && "bg-blue-50 text-blue-700 font-bold")}
+            onSelect={() => onFilterChange?.("concluida")}
+          >
+            Mostrar somente Concluídas
+          </DropdownMenuItem>
+
+          <DropdownMenuItem 
+            className={cn("text-xs font-medium cursor-pointer", filterMode === "faltou" && "bg-pink-50 text-pink-700 font-bold")}
+            onSelect={() => onFilterChange?.("faltou")}
+          >
+            Mostrar somente Faltas
+          </DropdownMenuItem>
+          
+          <DropdownMenuItem 
+            className={cn("text-xs font-medium cursor-pointer", filterMode === "cancelada" && "bg-red-50 text-red-700 font-bold")}
+            onSelect={() => onFilterChange?.("cancelada")}
+          >
+            Mostrar somente Canceladas
+          </DropdownMenuItem>
+
           <DropdownMenuSeparator />
+          
+          <DropdownMenuLabel className="text-xs font-bold text-gray-500">
+            Ações do Dia
+          </DropdownMenuLabel>
 
           {agendamentos.length > 0 && (
             <MenuItemDesmarcar
@@ -133,8 +174,6 @@ export default function ButtonOpcoesDiaCalendario({
             />
           )}
 
-          <MenuItemVerCancelados onSelect={() => onVerCancelados?.()} />
-          
           <DropdownMenuSeparator />
           
           <MenuItemTravarDia 
