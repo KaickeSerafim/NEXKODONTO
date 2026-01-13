@@ -105,15 +105,6 @@ export default function ButtonOpcoesDiaCalendario({
 
   return (
     <div className="flex items-center gap-1">
-      {agendamentos.length > 0 && (
-        <button
-          onClick={() => setOpenDesmarcar(true)}
-          className="h-6 w-6 opacity-0 group-hover:opacity-100 rounded-md text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all flex items-center justify-center"
-          title="Desmarcar agendamentos"
-        >
-          <XCircle className="w-3.5 h-3.5" />
-        </button>
-      )}
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
