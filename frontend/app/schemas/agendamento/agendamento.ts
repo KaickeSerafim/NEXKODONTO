@@ -58,6 +58,7 @@ export const agendamentoMinimalSchema = z.object({
   data_hora: z.string().optional(),
 
   status: z.string().optional(),
+  valor: z.union([z.number(), z.string()]).optional().transform((val) => val ? Number(val) : undefined),
   pagamento: z.array(z.object({
     id: z.number(),
     status: z.string(),
@@ -77,6 +78,7 @@ export const agendamentoSchema = z.object({
   pagamento: z.array(pagamentoSchema).optional().default([]),
   data_hora: z.string().optional(),
   data_hora_fim: z.string().nullable().optional(),
+  valor: z.union([z.number(), z.string()]).optional().transform((val) => val ? Number(val) : undefined),
   motivo: z.string().nullable().optional(),
   status: z.string().optional(),
   observacoes: z.string().nullable().optional(),
@@ -111,3 +113,13 @@ export type AgendamentoResponse = z.infer<typeof agendamentoResponseSchema>;
 export type AgendamentoDetailResponse = z.infer<typeof agendamentoDetailResponseSchema>;
 
 export type AgendamentoUpdate = z.infer<typeof agendamentoUpdateSchema>;
+
+export const createAgendamentoSchema = z.object({
+  paciente_id: z.number(),
+  procedimento_id: z.number().nullable().optional(),
+  data_hora: z.string(),
+  valor: z.number().optional().default(0),
+  observacoes: z.string().optional().default(""),
+});
+
+export type CreateAgendamento = z.infer<typeof createAgendamentoSchema>;

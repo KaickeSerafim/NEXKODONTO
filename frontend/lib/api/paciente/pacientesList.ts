@@ -2,15 +2,15 @@ import { api } from "@/lib/api/axios";
 import { PacienteListResponseSchema } from "@/app/schemas/paciente/paciente";
 
 interface GetPacientesParams {
-  nome?: string;
+  search?: string;
   limit?: number;
   offset?: number;
 }
 
-export async function GetPacientes({ nome, limit, offset }: GetPacientesParams = {}) {
+export async function GetPacientes({ search, limit, offset }: GetPacientesParams) {
   const response = await api.get("/pacientes/", {
     params: {
-      nome,
+      search,
       limit,
       offset,
     },

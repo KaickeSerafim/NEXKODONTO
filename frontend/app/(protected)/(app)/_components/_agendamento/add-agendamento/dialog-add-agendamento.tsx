@@ -1,7 +1,14 @@
 "use client";
 
-import React from "react";
-import { Plus, Calendar, Clock, User, Briefcase, FileText } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createAgendamentoSchema, CreateAgendamento } from "@/app/schemas/agendamento/agendamento";
+import { useCreateAgendamento } from "@/hooks/agendamento/useCreateAgendamento";
+import { useToast } from "@/hooks/user/use-toast";
+import { Procedimento } from "@/app/schemas/procedimento/procedimento";
+import { Paciente } from "@/app/schemas/paciente/paciente";
+
+import { Plus, Calendar, Clock, User, Briefcase, FileText, DollarSign, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,13 +20,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import InputSearchPaciente from "../../_paciente/input-search-pacientes";
 import InputSearchProcedimento from "../../_procedimento/input-search-procedimento";
 import ButtonAddPaciente from "../../_paciente/add-paciente";
@@ -34,6 +34,76 @@ export function DialogAddAgendamento({
   open,
   onOpenChange,
 }: DialogAddAgendamentoProps) {
+  const { toast } = useToast();
+  const { mutate: createAgendamento, isPending } = useCreateAgendamento();
+
+  const form = useForm<CreateAgendamento>({
+    resolver: zodResolver(createAgendamentoSchema),
+    defaultValues: {
+      valor: 0,
+      observacoes: "",
+    },
+  });
+
+  const onSubmit = (data: CreateAgendamento) => {
+    // Garantir que temos paciente_id e data_hora
+    if (!data.paciente_id) {
+      toast({
+        title: "Campo obrigatório",
+        description: "Por favor, selecione um paciente.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!data.data_hora) {
+      toast({
+        title: "Campo obrigatório",
+        description: "Por favor, preencha a data e o horário.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    createAgendamento(data, {
+      onSuccess: () => {
+        toast({
+          title: "Agendamento criado!",
+          description: "O agendamento foi realizado com sucesso.",
+        });
+        form.reset();
+        onOpenChange(false);
+      },
+      onError: (error: any) => {
+        toast({
+          title: "Erro ao criar agendamento",
+          description: error.message || "Ocorreu um erro inesperado.",
+          variant: "destructive",
+        });
+      },
+    });
+  };
+
+  const handleProcedimentoSelect = (procedimento: Procedimento) => {
+    if (procedimento.id) {
+      form.setValue("procedimento_id", procedimento.id);
+      // Se o valor estiver zerado, coloca o preço do procedimento
+      const currentValor = form.getValues("valor");
+      if (!currentValor || currentValor === 0) {
+        form.setValue("valor", Number(procedimento.preco_base));
+      }
+    } else {
+      form.setValue("procedimento_id", null);
+      form.setValue("valor", 0);
+    }
+  };
+
+  const handlePacienteSelect = (paciente: Paciente) => {
+    if (paciente.id) {
+      form.setValue("paciente_id", paciente.id);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] border-none shadow-2xl bg-white/95 backdrop-blur-sm overflow-hidden p-0">
@@ -55,87 +125,123 @@ export function DialogAddAgendamento({
           </div>
         </DialogHeader>
 
-        <div className="px-6 py-4 space-y-6">
-          <div className="grid grid-cols-1 gap-4">
-            <div className="grid grid-cols-3 gap-4 items-end">
-              <div className="space-y-2 col-span-2">
-                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5" />
-                  Paciente
-                </Label>
-                <InputSearchPaciente />
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div className="px-6 py-4 space-y-6">
+            <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-3 gap-4 items-end">
+                <div className="space-y-2 col-span-2">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5" />
+                    Paciente
+                  </Label>
+                  <InputSearchPaciente onSelect={handlePacienteSelect} />
+                </div>
+                <div className="col-span-1">
+                  <ButtonAddPaciente />
+                </div>
               </div>
-              <div className="col-span-1">
-                <ButtonAddPaciente />
+
+              <div className="grid grid-cols-3 gap-4 items-end">
+                <div className="space-y-2 col-span-2">
+                  <Label className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+                    <Briefcase className="w-3.5 h-3.5" />
+                    Procedimento (Opcional)
+                  </Label>
+                  <InputSearchProcedimento onSelect={handleProcedimentoSelect} />
+                </div>
+                <div className="col-span-1">
+                  <ButtonAddProcedimento />
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 items-end">
-              <div className="space-y-2 col-span-2">
-                <Label className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
-                  <Briefcase className="w-3.5 h-3.5" />
-                  Procedimento
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="data" className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5" />
+                  Data
                 </Label>
-                <InputSearchProcedimento />
+                <Input
+                  id="data"
+                  type="date"
+                  onChange={(e) => {
+                    const timePart = form.getValues("data_hora")?.split("T")[1] || "00:00:00Z";
+                    form.setValue("data_hora", `${e.target.value}T${timePart}`);
+                  }}
+                  className="h-11 bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all rounded-lg"
+                />
               </div>
-              <div className="col-span-1">
-                <ButtonAddProcedimento />
+
+              <div className="space-y-2">
+                <Label htmlFor="hora" className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5" />
+                  Horário
+                </Label>
+                <Input
+                  id="hora"
+                  type="time"
+                  className="h-11 bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all rounded-lg"
+                  onChange={(e) => {
+                    const dataVal = form.getValues("data_hora");
+                    const datePart = dataVal ? dataVal.split("T")[0] : new Date().toISOString().split("T")[0];
+                    form.setValue("data_hora", `${datePart}T${e.target.value}:00Z`);
+                  }}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="valor" className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+                  <DollarSign className="w-3.5 h-3.5" />
+                  Valor da Consulta
+                </Label>
+                <Input
+                  id="valor"
+                  type="number"
+                  step="0.01"
+                  {...form.register("valor", { valueAsNumber: true })}
+                  className="h-11 bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all rounded-lg font-bold text-primary"
+                />
               </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="data" className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5" />
-                Data
+              <Label htmlFor="observacoes" className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5" />
+                Observações (Opcional)
               </Label>
               <Input
-                id="data"
-                type="date"
+                id="observacoes"
+                {...form.register("observacoes")}
+                placeholder="Alguma recomendação ou observação importante"
                 className="h-11 bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all rounded-lg"
               />
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="hora" className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5" />
-                Horário
-              </Label>
-              <Input
-                id="hora"
-                type="time"
-                className="h-11 bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all rounded-lg"
-              />
-            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="observacoes" className="text-xs font-bold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
-              <FileText className="w-3.5 h-3.5" />
-              Observações (Opcional)
-            </Label>
-            <Input
-              id="observacoes"
-              placeholder="Alguma recomendação ou observação importante"
-              className="h-11 bg-gray-50/50 border-gray-100 focus:ring-primary/20 transition-all rounded-lg"
-            />
-          </div>
-        </div>
-
-        <DialogFooter className="px-6 py-6 border-t bg-gray-50/50 gap-3">
-          <Button
-            variant="ghost"
-            onClick={() => onOpenChange(false)}
-            className="font-bold text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all h-11 px-6 rounded-lg"
-          >
-            Cancelar
-          </Button>
-          <Button className="font-bold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 transition-all h-11 px-8 rounded-lg flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            Salvar Agendamento
-          </Button>
-        </DialogFooter>
+          <DialogFooter className="px-6 py-6 border-t bg-gray-50/50 gap-3">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+              className="font-bold text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all h-11 px-6 rounded-lg"
+              disabled={isPending}
+            >
+              Cancelar
+            </Button>
+            <Button 
+              type="submit"
+              className="font-bold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 transition-all h-11 px-8 rounded-lg flex items-center gap-2"
+              disabled={isPending}
+            >
+              {isPending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Plus className="w-4 h-4" />
+              )}
+              {isPending ? "Salvando..." : "Salvar Agendamento"}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

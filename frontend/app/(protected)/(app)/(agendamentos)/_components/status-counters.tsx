@@ -1,5 +1,4 @@
 import React from "react";
-import { cn } from "@/lib/utils/utils";
 import { Agendamento } from "@/app/schemas/agendamento/agendamento";
 
 interface StatusCountersProps {
