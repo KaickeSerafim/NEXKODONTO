@@ -119,7 +119,14 @@ export type AgendamentoUpdate = z.infer<typeof agendamentoUpdateSchema>;
 export const createAgendamentoSchema = z.object({
   paciente_id: z.number(),
   procedimento_id: z.number().nullable().optional(),
-  data_hora: z.string(),
+  data_hora: z.string().refine((val) => {
+    if (!val) return false;
+    const agendamentoDate = new Date(val);
+    const now = new Date();
+    return agendamentoDate > now;
+  }, {
+    message: "A data e hora do agendamento não podem estar no passado"
+  }),
   valor: z.number().optional().default(0),
   duracao_estimada: z.number().optional().default(30),
   observacoes: z.string().optional().default(""),

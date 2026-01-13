@@ -7,5 +7,5 @@ def determinar_duracao_agendamento(agendamento):
         if agendamento.procedimento:
             agendamento.duracao_estimada = agendamento.procedimento.duracao_minutos
         else:
-            agendamento.duracao_estimada = 30 # Valor padrão caso não tenha procedimento
+            agendamento.duracao_estimada = 0 # Valor padrão caso não tenha procedimento
     return agendamento.duracao_estimada

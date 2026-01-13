@@ -5,3 +5,4 @@ class ProcedimentoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Procedimento
         fields = ['id', 'nome', 'duracao_minutos', 'preco_base', 'criado_em', 'atualizado_em', 'dentista']
+        read_only_fields = ['id', 'dentista']

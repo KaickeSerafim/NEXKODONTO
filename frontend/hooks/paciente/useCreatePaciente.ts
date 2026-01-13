@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CreatePaciente } from "@/lib/api/paciente/pacienteCreate";
-import { toast } from "sonner";
+import { sucessoCriarPaciente, erroCriarPaciente } from "@/lib/toast/paciente";
+import { parseBackendError } from "@/lib/utils/error-parser";
 
 export function useCreatePaciente() {
   const queryClient = useQueryClient();
@@ -9,11 +10,11 @@ export function useCreatePaciente() {
     mutationFn: CreatePaciente,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pacientes"] });
-      toast.success("Paciente cadastrado com sucesso!");
+      sucessoCriarPaciente();
     },
     onError: (error: any) => {
-      const message = error.response?.data?.message || "Erro ao cadastrar paciente";
-      toast.error(message);
+      const message = parseBackendError(error);
+      erroCriarPaciente(message);
     },
   });
 }

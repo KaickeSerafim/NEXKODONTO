@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CreateProcedimento } from "@/lib/api/procedimento/procedimentoCreate";
-import { toast } from "sonner";
+import { sucessoCriarProcedimento, erroCriarProcedimento } from "@/lib/toast/procedimento";
+import { parseBackendError } from "@/lib/utils/error-parser";
 
 export function useCreateProcedimento() {
   const queryClient = useQueryClient();
@@ -9,11 +10,11 @@ export function useCreateProcedimento() {
     mutationFn: CreateProcedimento,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["procedimentos"] });
-      toast.success("Procedimento cadastrado com sucesso!");
+      sucessoCriarProcedimento();
     },
     onError: (error: any) => {
-      const message = error.response?.data?.message || "Erro ao cadastrar procedimento";
-      toast.error(message);
+      const message = parseBackendError(error);
+      erroCriarProcedimento(message);
     },
   });
 }

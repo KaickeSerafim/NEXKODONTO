@@ -36,12 +36,27 @@ def validate_appointment_overlap(dentista, data_hora, duracao_estimada, exclude_
         conflitos = conflitos.exclude(id=exclude_id)
 
     if conflitos.exists():
-        conflito = conflitos.first()
-        horario_conflito = conflito.data_hora.strftime('%H:%M')
-        horario_fim_conflito = conflito.data_hora_fim.strftime('%H:%M')
-        raise ValidationError(
-            f"Conflito de horário: Já existe um agendamento das {horario_conflito} às {horario_fim_conflito}."
-        )
+        # Ordenamos para pegar o conflito mais próximo
+        conflito = conflitos.order_by('data_hora').first()
+        
+        # 1. Caso Gap: O conflito começa DEPOIS (estou tentando encaixar num buraco, mas é maior que o buraco)
+        if conflito.data_hora > data_hora:
+            diferenca = conflito.data_hora - data_hora
+            minutos_livres = int(diferenca.total_seconds() / 60)
+            from django.utils import timezone
+            horario_limite = timezone.localtime(conflito.data_hora).strftime('%H:%M')
+            raise ValidationError(
+                f"Conflito de horário: O intervalo disponível é de apenas {minutos_livres} minutos (até às {horario_limite})."
+            )
+            
+        # 2. Caso Sobreposição Direta: O conflito começa ANTES ou JUNTO
+        else:
+            from django.utils import timezone
+            horario_conflito = timezone.localtime(conflito.data_hora).strftime('%H:%M')
+            horario_fim_conflito = timezone.localtime(conflito.data_hora_fim).strftime('%H:%M')
+            raise ValidationError(
+                f"Conflito de horário: Já existe um agendamento das {horario_conflito} às {horario_fim_conflito}."
+            )
 
     # 4. Verificar bloqueios manuais (BloqueioAgenda)
     from apps.usuarios.models import BloqueioAgenda

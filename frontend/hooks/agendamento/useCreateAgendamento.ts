@@ -10,5 +10,8 @@ export function useCreateAgendamento() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["listAgendamentos"] });
     },
+    onError: (error) => {
+      console.error("Error creating agendamento:", error);
+    },
   });
 }

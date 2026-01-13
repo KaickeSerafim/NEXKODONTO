@@ -64,64 +64,101 @@ class DisponibilidadeView(APIView):
             active=True
         ).select_related('paciente')
 
-        # 4. Gerar slots (30 min)
+        # 4. Gerar slots dinâmicos
         slots = []
         current_dt = datetime.combine(target_date, h_inicio)
         end_dt = datetime.combine(target_date, h_fim)
+        
+        # Horário atual para comparação (past prevention)
+        now = timezone.now()
+        if timezone.is_naive(now):
+            now = timezone.make_aware(now)
 
         while current_dt < end_dt:
             slot_time = current_dt.time()
-            current_dt_end = current_dt + timedelta(minutes=30)
             
-            # Verificar se está no intervalo
+            # 1. Verificar se está no passado (para hoje)
+            is_passado = False
+            dt_aware = timezone.make_aware(current_dt) if timezone.is_naive(current_dt) else current_dt
+            if dt_aware < now:
+                is_passado = True
+
+            # 2. Verificar se está no intervalo
             is_intervalo = False
+            intervalo_fim_dt = None
             if int_inicio and int_fim:
                 if int_inicio <= slot_time < int_fim:
                     is_intervalo = True
+                    intervalo_fim_dt = datetime.combine(target_date, int_fim)
 
-            # Verificar se está bloqueado manualmente
+            # 3. Verificar se está bloqueado manualmente
             is_bloqueado = False
+            bloqueio_fim_dt = None
             for b in bloqueios:
                 if b.hora_inicio and b.hora_fim:
                     if b.hora_inicio <= slot_time < b.hora_fim:
                         is_bloqueado = True
+                        bloqueio_fim_dt = datetime.combine(target_date, b.hora_fim)
                         break
                 else:
                     # Bloqueio de dia todo
                     is_bloqueado = True
+                    bloqueio_fim_dt = end_dt
                     break
 
-            # Encontrar agendamento que sobrepõe este slot
-            slot_status = 'disponivel' # Cinza
-            paciente_nome = None
-            
+            # 4. Encontrar agendamento que sobrepõe este horário
+            ag_encontrado = None
             for ag in agendamentos:
-                # Se o agendamento começa ou ocorre durante este slot
-                if ag.data_hora.time() <= slot_time < ag.data_hora_fim.time():
-                    if ag.status == StatusAgendamento.CONFIRMADA or ag.status == StatusAgendamento.CONCLUIDA:
-                        slot_status = 'ocupado' # Verde
-                    else:
-                        slot_status = 'pendente' # Amarelo
-                    paciente_nome = ag.paciente.nome
+                # Convertemos para local time ANTES de comparar, pois slots estão em local time
+                ag_inicio_local = timezone.localtime(ag.data_hora)
+                ag_fim_local = timezone.localtime(ag.data_hora_fim)
+                
+                # Comparamos o tempo do slot com o intervalo do agendamento (tudo em local time)
+                if ag_inicio_local.time() <= slot_time < ag_fim_local.time():
+                    ag_encontrado = ag
                     break
 
-            if is_intervalo or is_bloqueado:
-                slot_info = {
+            if ag_encontrado:
+                status_slot = 'ocupado' if ag_encontrado.status in [StatusAgendamento.CONFIRMADA, StatusAgendamento.CONCLUIDA] else 'pendente'
+                ag_fim_local_jump = timezone.localtime(ag_encontrado.data_hora_fim)
+                slots.append({
                     'hora': slot_time.strftime('%H:%M'),
-                    'status': 'bloqueado',
-                    'paciente': 'Intervalo/Bloqueio' if is_intervalo else 'Bloqueado',
+                    'hora_fim': ag_fim_local_jump.strftime('%H:%M'),
+                    'status': status_slot,
+                    'paciente': ag_encontrado.paciente.nome,
                     'disponivel': False
-                }
-            else:
-                slot_info = {
+                })
+                current_dt = datetime.combine(target_date, ag_fim_local_jump.time())
+            elif is_intervalo:
+                slots.append({
                     'hora': slot_time.strftime('%H:%M'),
-                    'status': slot_status,
-                    'paciente': paciente_nome,
-                    'disponivel': slot_status == 'disponivel'
-                }
-            
-            slots.append(slot_info)
-            current_dt = current_dt_end
+                    'hora_fim': intervalo_fim_dt.strftime('%H:%M'),
+                    'status': 'bloqueado',
+                    'paciente': 'Intervalo',
+                    'disponivel': False
+                })
+                current_dt = intervalo_fim_dt
+            elif is_bloqueado:
+                slots.append({
+                    'hora': slot_time.strftime('%H:%M'),
+                    'hora_fim': bloqueio_fim_dt.strftime('%H:%M'),
+                    'status': 'bloqueado',
+                    'paciente': 'Bloqueado',
+                    'disponivel': False
+                })
+                current_dt = bloqueio_fim_dt
+            else:
+                # Slot disponível
+                next_dt = current_dt + timedelta(minutes=30)
+                slots.append({
+                    'hora': slot_time.strftime('%H:%M'),
+                    'hora_fim': next_dt.strftime('%H:%M'),
+                    'status': 'disponivel',
+                    'paciente': None,
+                    'disponivel': not is_passado
+                })
+                # Avança 30 minutos por padrão para slots vazios
+                current_dt = next_dt
 
         return ResponseBuilder().success("Disponibilidade listada").with_data({
             'data': target_date.strftime('%Y-%m-%d'),

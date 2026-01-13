@@ -71,9 +71,9 @@ export default function ProximosAtendimentos({
         }
       />
       {agendamentosList.map((atendimento: Agendamento, index: number) => {
-        const statusConfig = getStatusConfig(atendimento.status);
+        const statusConfig = getStatusConfig((atendimento as any).status);
         const statusPagamentoConfig = getStatusPagamentoConfig(
-          atendimento.pagamento[0]?.status || "pendente"
+          (atendimento as any).pagamento[0]?.status || "pendente"
         );
         const IconPagamento =
           statusPagamentoConfig.icon === "Check"
@@ -96,17 +96,17 @@ export default function ProximosAtendimentos({
               <div className="flex items-center gap-2">
                 <User className="w-4 h-4 text-primary" />
                 <h3 className="font-semibold text-lg">
-                  {atendimento.paciente_detail.nome}
+                  {atendimento.paciente_detail?.nome || "Paciente não identificado"}
                 </h3>
                 <h4 className="text-sm font-semibold  text-gray-500 border rounded-lg pr-4 pl-2 bg-cyan-300">
-                  {atendimento.procedimento_detail.nome ? atendimento.procedimento_detail.nome : "-"}
-                  {atendimento.procedimento_detail.duracao_minutos ? " - " + atendimento.procedimento_detail.duracao_minutos + " min" : ""}
+                  {atendimento.procedimento_detail?.nome ? atendimento.procedimento_detail.nome : "-"}
+                  {(atendimento.procedimento_detail as any)?.duracao_minutos ? " - " + (atendimento.procedimento_detail as any).duracao_minutos + " min" : ""}
                 </h4>
               </div>
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 ">
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
-                  <span>{formatarDataHora(atendimento.data_hora)}</span>
+                  <span>{formatarDataHora((atendimento as any).data_hora)}</span>
                 </div>
                 <span
                   className={`text-xs px-2 py-1 rounded-full border ${statusConfig.className}`}
@@ -117,16 +117,16 @@ export default function ProximosAtendimentos({
                   <span className="flex gap-1">
                     Criado por:{"  "}
                     <p className="font-bold">
-                      {atendimento.criado_por_detail
-                        ? atendimento.criado_por_detail.nome_completo
+                      {(atendimento as any).criado_por_detail
+                        ? (atendimento as any).criado_por_detail.nome_completo
                         : "-"}
                     </p>
                   </span>
 
                   <span>
                     em:{"  "}
-                    {atendimento.criado_em
-                      ? formatarDataHora(atendimento.criado_em)
+                    {(atendimento as any).criado_em
+                      ? formatarDataHora((atendimento as any).criado_em)
                       : "-"}
                   </span>
                 </span>
@@ -137,16 +137,16 @@ export default function ProximosAtendimentos({
                   <span className="flex gap-1">
                     Ultima alteracao:{"  "}
                     <p className="font-bold">
-                      {atendimento.updated_by_detail?.nome_completo
-                        ? atendimento.updated_by_detail.nome_completo
+                      {(atendimento as any).updated_by_detail?.nome_completo
+                        ? (atendimento as any).updated_by_detail.nome_completo
                         : "-"}
                     </p>
                   </span>
 
                   <span>
                     em:{"  "}
-                    {atendimento.atualizado_em
-                      ? formatarDataHora(atendimento.atualizado_em)
+                    {(atendimento as any).atualizado_em
+                      ? formatarDataHora((atendimento as any).atualizado_em)
                       : "-"}
                   </span>
                 </span>
@@ -170,7 +170,7 @@ export default function ProximosAtendimentos({
                 </span>
               </div>
             </div>
-            <ObsProxAtendimento observacao={atendimento.observacoes || ""} />
+            <ObsProxAtendimento observacao={(atendimento as any).observacoes || ""} />
             <ActionsProxAtendimento agendamento={atendimento} />
           </motion.div>
         );

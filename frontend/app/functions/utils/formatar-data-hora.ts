@@ -36,11 +36,20 @@ export const calcularHorarioFim = (
   if (!dataHoraInicio || !duracaoMinutos) return null;
   
   try {
-    const inicio = dataHoraInicio.endsWith('Z') 
-      ? parseISO(dataHoraInicio) 
-      : parseISO(dataHoraInicio + 'Z');
+    // Extrair hora e minuto da string
+    const timePart = dataHoraInicio.split('T')[1];
+    if (!timePart) return null;
     
+    const [hours, minutes] = timePart.substring(0, 5).split(':').map(Number);
+    
+    // Criar uma data local (não UTC)
+    const inicio = new Date();
+    inicio.setHours(hours, minutes, 0, 0);
+    
+    // Adicionar duração
     const fim = addMinutes(inicio, duracaoMinutos);
+    
+    // Retornar apenas HH:mm
     return format(fim, "HH:mm");
   } catch (e) {
     return null;

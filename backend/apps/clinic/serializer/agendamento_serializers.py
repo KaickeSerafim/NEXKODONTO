@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from django.core.exceptions import ValidationError
+from django.utils import timezone
 from ..models import Agendamento
 from apps.usuarios.models import CustomUser
 from .paciente_serializers import PacienteSerializer
@@ -47,11 +49,24 @@ class AgendamentoSerializer(serializers.ModelSerializer):
     paciente_id = serializers.IntegerField(write_only=True, required=False)
     procedimento_id = serializers.IntegerField(write_only=True, required=False)
     
+    # Força a serialização no horário local (América/São Paulo) definido no settings
+    data_hora = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S", required=False)
+    data_hora_fim = serializers.DateTimeField(format="%Y-%m-%dT%H:%M:%S", read_only=True)
+    
     class Meta:
         model = Agendamento
         fields = ['id', 'paciente_id', 'paciente_detail', 'dentista_detail', 'criado_por_detail', 'updated_by_detail','procedimento_id','procedimento_detail','data_hora_fim',
-                  'data_hora', 'motivo', 'status', 'observacoes', 'criado_em', 'atualizado_em', 'pagamento']
+                  'data_hora', 'valor', 'duracao_estimada', 'motivo', 'status', 'observacoes', 'criado_em', 'atualizado_em', 'pagamento']
         read_only_fields = ['id', 'criado_em', 'atualizado_em', 'updated_by']
+    
+    
+    def validate_data_hora(self, value):
+        """Valida que data_hora não está no passado"""
+        if value < timezone.now():
+            raise serializers.ValidationError(
+                "A data e hora do agendamento não podem estar no passado."
+            )
+        return value
     
     def validate(self, data):
         # Se for atualização parcial, precisamos dos dados da instância
@@ -67,9 +82,15 @@ class AgendamentoSerializer(serializers.ModelSerializer):
         # depois no save(), então precisamos garantir que temos o dentista aqui.
         if not dentista and 'request' in self.context:
             dentista = self.context['request'].user
+            
+        # O serializer deve considerar o valor default do model caso status não seja passado
+        from ..choices import StatusAgendamento
+        if status is None:
+            # Se status não veio no payload e não temos instância, assume o default do model
+            if not instance:
+                status = StatusAgendamento.AGENDADA
 
         # Apenas valida overlap se o status for um dos que bloqueiam
-        from ..choices import StatusAgendamento
         status_bloqueantes = [
             StatusAgendamento.AGENDADA,
             StatusAgendamento.CONFIRMADA,

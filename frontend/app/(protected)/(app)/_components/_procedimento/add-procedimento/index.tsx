@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Briefcase } from "lucide-react";
+import {  Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DialogAddProcedimento from "./dialog-add-procedimento";
 
@@ -11,6 +11,7 @@ export default function ButtonAddProcedimento() {
   return (
     <>
       <Button 
+        type="button"
         onClick={() => setOpen(true)}
         className="font-bold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20 transition-all h-11 px-6 rounded-xl flex items-center gap-2 group"
       >

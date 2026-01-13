@@ -4,13 +4,13 @@ import { useDisponibilidade } from "@/hooks/agendamento/useDisponibilidade";
 import { cn } from "@/lib/utils/utils";
 import { Loader2, Check, Clock, User } from "lucide-react";
 
-interface SearchHorarioProps {
+interface GradeHorariosDisponiveisProps {
   date: string;
   onSelect: (time: string) => void;
   selectedTime?: string;
 }
 
-export default function SearchHorario({ date, onSelect, selectedTime }: SearchHorarioProps) {
+export default function GradeHorariosDisponiveis({ date, onSelect, selectedTime }: GradeHorariosDisponiveisProps) {
   const { data, isLoading, error } = useDisponibilidade(date);
 
   if (!date) {
@@ -42,9 +42,9 @@ export default function SearchHorario({ date, onSelect, selectedTime }: SearchHo
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-bold uppercase tracking-wider text-gray-500">
-          Horários Disponíveis
+          Grade de Horários
         </h4>
-        <div className="flex gap-4 text-[10px] font-bold uppercase tracking-widest">
+        <div className="flex flex-wrap gap-3 text-[10px] font-bold uppercase tracking-widest justify-end">
           <div className="flex items-center gap-1.5">
             <div className="w-2.5 h-2.5 rounded-full bg-gray-200" />
             <span className="text-gray-400">Livre</span>
@@ -57,10 +57,14 @@ export default function SearchHorario({ date, onSelect, selectedTime }: SearchHo
             <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
             <span className="text-emerald-600">Ocupado</span>
           </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-red-100" />
+            <span className="text-red-400">Passado/Bloq</span>
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+      <div className="grid grid-cols-4 sm:grid-cols-5 gap-2">
         {data?.slots.map((slot) => {
           const isSelected = selectedTime === slot.hora;
           
@@ -78,6 +82,11 @@ export default function SearchHorario({ date, onSelect, selectedTime }: SearchHo
             bgColor = "bg-red-50 text-red-700 border-red-100";
             cursor = "cursor-not-allowed";
             opacity = "opacity-50";
+          } else if (!slot.disponivel) {
+            // Horário livre mas no passado
+            bgColor = "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed";
+            cursor = "cursor-not-allowed";
+            opacity = "opacity-60";
           }
 
           if (isSelected) {
@@ -91,23 +100,34 @@ export default function SearchHorario({ date, onSelect, selectedTime }: SearchHo
               disabled={!slot.disponivel}
               onClick={() => slot.disponivel && onSelect(slot.hora)}
               className={cn(
-                "relative group flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all duration-200 font-bold text-sm",
+                "relative group flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all duration-200 font-black text-xs",
                 bgColor,
                 cursor,
                 opacity,
                 isSelected ? "ring-2 ring-primary ring-offset-2" : ""
               )}
-              title={slot.paciente ? `Paciente: ${slot.paciente}` : slot.status}
+              title={slot.paciente ? `Paciente: ${slot.paciente}` : slot.status === 'disponivel' && !slot.disponivel ? "Horário já passou" : slot.status}
             >
-              <span>{slot.hora}</span>
+              <span className="flex items-center gap-1">
+                {slot.hora}
+                {slot.hora_fim && slot.status !== 'disponivel' ? ` - ${slot.hora_fim}` : ""}
+              </span>
               {isSelected && <Check className="w-3 h-3 mt-1" />}
               {!slot.disponivel && slot.paciente && slot.status !== 'bloqueado' && (
-                <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full border border-white bg-current" />
+                <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-white bg-current" />
               )}
             </button>
           );
         })}
       </div>
+      
+      {data?.slots.every(s => !s.disponivel) && (
+        <div className="p-4 text-center bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+            Não há mais horários disponíveis para esta data.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

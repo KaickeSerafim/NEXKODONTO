@@ -8,7 +8,7 @@ class PacienteSerializer(serializers.ModelSerializer):
         model = Paciente
         fields = ['id', 'nome', 'telefone', 'email', 'dentista', 'data_nascimento', 
                   'endereco', 'cidade', 'estado', 'cep', 'observacoes']
-        read_only_fields = ['id']
+        read_only_fields = ['id', 'dentista']
 
 class FichaPacienteSerializer(serializers.ModelSerializer):
     historico_medico = HistoricoMedicoSerializer(read_only=True)

@@ -2,6 +2,7 @@ import { api } from "../axios";
 
 export interface SlotDisponibilidade {
   hora: string;
+  hora_fim?: string;
   status: 'disponivel' | 'pendente' | 'ocupado' | 'bloqueado';
   paciente: string | null;
   disponivel: boolean;
